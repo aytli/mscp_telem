@@ -8,5 +8,5 @@
 #FUSES NOPLLEN                  //4X HW PLL disabled, 4X PLL enabled in software
 
 #use delay(clock=20000000)
-#use rs232(baud = 115200, xmit = PIN_C6, rcv = PIN_C7)
+#use rs232(baud = 9600, xmit = PIN_C6, rcv = PIN_C7)
 
