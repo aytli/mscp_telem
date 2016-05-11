@@ -6,9 +6,16 @@
 #FUSES NOXINST                  //Extended set extension and Indexed Addressing mode disabled (Legacy mode)
 #FUSES HSH                      //High speed Osc, high power 16MHz-25MHz
 #FUSES NOPLLEN                  //4X HW PLL disabled, 4X PLL enabled in software
+#FUSES BROWNOUT
+#FUSES PUT
+#FUSES NOIESO
+#FUSES NOFCMEN
+#FUSES NOPROTECT
 
-#use delay(clock=20000000)
+#use delay(clock = 20000000)
 #use rs232(baud = 9600, xmit = PIN_C6, rcv = PIN_C7)
+
+#define LED_PIN PIN_A1
 
 #define EXPAND_AS_ENUMERATION(a,b,c) a = b,
 
