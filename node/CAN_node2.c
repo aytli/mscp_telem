@@ -209,27 +209,10 @@ void main() {
       if ( can_tbe() && (ms > 200) )
       {
          out_data[0]++;
-         // this will increment the first byte in the data frame every transmission
-         ms=0; // resets the timer interupt
-         i=can_putd(tx_id,out_data,tx_len,tx_pri,tx_ext,tx_rtr); //put data on transmit buffer
-         if (i != 0xFF) 
-         { //if i != 0xFF then success, a transmit buffer was open
-            output_toggle(LED);
-            printf("\r\nSENT %U: ID=%3LX LEN=%U ", i, tx_id, tx_len);
-            printf("PRI=%U EXT=%U RTR=%U\r\n   DATA = ", tx_pri, tx_ext, tx_rtr);
-            for (i=0;i<tx_len;i++) 
-            {
-               printf("%X ",out_data[i]);
-            }
-            printf("\r\n");
-         }
-         else 
-         { //fail, no transmit buffer was open
-            printf("\r\nFAIL on can_putd\r\n");
-         }
+         ms = 0; // resets the timer interupt
+         i = can_putd(tx_id,out_data,tx_len,tx_pri,tx_ext,tx_rtr); //put data on transmit buffer
+         output_toggle(LED);
       }
-      
-      
    }  // while(true) last bracket
 }     // main() last bracket
 

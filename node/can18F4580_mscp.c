@@ -114,7 +114,7 @@
 //// in object code form are not restricted in any way.              ////
 /////////////////////////////////////////////////////////////////////////
 
-#include <can-18F4580_mscp.h>
+#include <can18F4580_mscp.h>
 
 #if CAN_DO_DEBUG
  #use rs232(baud=9600, xmit=PIN_C6, rcv=PIN_C7)

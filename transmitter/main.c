@@ -6,19 +6,13 @@
 // Creates a list of CAN packet IDs
 enum
 {
-    CAN_ID_TABLE(EXPAND_AS_ID)
-};
-
-// Creates a list of CAN packet lengths
-enum
-{
-    CAN_ID_TABLE(EXPAND_AS_LENGTH)
+    CAN_ID_TABLE(EXPAND_AS_CAN_ID)
 };
 
 // Creates a list of telemetry packet IDs
 enum
 {
-    TELEM_ID_TABLE(EXPAND_AS_ID)
+    TELEM_ID_TABLE(EXPAND_AS_TELEM_ID)
 };
 
 // Creates a list of telemetry packet IDs
@@ -27,7 +21,7 @@ enum
     TELEM_ID_TABLE(EXPAND_AS_LENGTH)
 };
 
-static int8 g_motor_page[TELEM_MOTOR_LEN];
+static int8 g_bps_temp_page[8];
 
 void xbee_init(void)
 {
@@ -50,11 +44,20 @@ void send_data(int8 id, int len, int * data)
     }
 }
 
+int16 ms;
 #int_timer2
 void isr_timer2(void)
 {
-    output_toggle(LED_PIN);
-    send_data(TELEM_MOTOR_ID,TELEM_MOTOR_LEN,g_motor_page);
+    if (ms >= HEARTBEAT_PERIOD_MS)
+    {
+        ms = 0;
+        output_toggle(TX_PIN);
+        send_data(TELEM_MOTOR_ID,8,g_bps_temp_page);
+    }
+    else
+    {
+        ms++;
+    }
 }
 
 void main()
@@ -62,25 +65,18 @@ void main()
     int i;
     struct rx_stat rxstat;
     int32 rx_id;
-    int in_data[8];
+    int8 in_data[8];
     int rx_len;
     
-    // Set up and enable timer 2 with a period of HEARTBEAT_PERIOD_MS
-    setup_timer2(TMR_EXTERNAL|TMR_DIV_BY_256,39*HEARTBEAT_PERIOD_MS);
+    // Set up and enable timer 2 to interrupt every 1ms with a 20MHz clock
+    setup_timer_2(T2_DIV_BY_4,79,16);
     enable_interrupts(INT_TIMER2);
+    enable_interrupts(GLOBAL);
     
     xbee_init();
-    
     can_init();
     set_tris_b((*0xF93 & 0xFB ) | 0x08);   //b3 is out, b2 is in (default)
-    enable_interrupts(INT_TIMER2);   //enable timer2 interrupt (if want to count ms)
-    enable_interrupts(GLOBAL);       //enable all interrupts
     delay_us(200);
-    
-    int data[8] = {0,1,2,3,4,5,6,7};
-    int data_len = 8;
-    int id = TELEM_MOTOR_ID;
-    int len = TELEM_MOTOR_LEN;
     
     while(true)
     {
@@ -88,10 +84,19 @@ void main()
         {
             if (can_getd(rx_id, in_data, rx_len, rxstat))
             {
+                output_toggle(RX_PIN);
                 switch(rx_id)
                 {
-                    case 0x501:
-                        g_motor_page = in_data;
+                    case CAN_BPS_VOLTAGE_ID:     // Motor data received
+                        break;
+                    case CAN_BPS_TEMPERATURE_ID: // BPS voltage data
+                        memcpy(g_bps_temp_page,in_data,rx_len);
+                        break;
+                    case CAN_BPS_CURRENT_ID:     // BPS current data
+                        break;
+                    case CAN_BPS_BALANCING_ID:   // BPS balancing bits
+                        break;
+                    case CAN_BPS_STATUS_ID:      // BPS status
                         break;
                     default:
                         break;
