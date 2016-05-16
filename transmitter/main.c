@@ -57,7 +57,12 @@ void isr_timer2(void)
     {
         ms = 0;
         output_toggle(TX_PIN);
-        send_data(TELEM_MOTOR_ID,8,g_bps_temperature_page);
+        send_data(TELEM_MOTOR_ID          , TELEM_MOTOR_LEN          , g_motor_page);
+        send_data(TELEM_BPS_VOLTAGE_ID    , TELEM_BPS_VOLTAGE_LEN    , g_bps_voltage_page);
+        send_data(TELEM_BPS_TEMPERATURE_ID, TELEM_BPS_TEMPERATURE_LEN, g_bps_temperature_page);
+        send_data(TELEM_BPS_CURRENT_ID    , TELEM_BPS_CURRENT_LEN    , g_bps_current_page);
+        send_data(TELEM_BPS_BALANCING_ID  , TELEM_BPS_BALANCING_LEN  , g_bps_balancing_page);
+        send_data(TELEM_BPS_STATUS_ID     , TELEM_BPS_STATUS_LEN     , g_bps_status_page);
     }
     else
     {
@@ -132,13 +137,13 @@ void main()
                         memcpy(g_bps_temperature_page[16],in_data,rx_len);
                         break;
                     case CAN_BPS_CURRENT_ID:        // BPS current
-                        memcpy(g_bps_current_page[16],in_data,rx_len);
+                        memcpy(g_bps_current_page[0],in_data,rx_len);
                         break;
                     case CAN_BPS_BALANCING_ID:      // BPS balancing bits
-                        memcpy(g_bps_balancing_page[16],in_data,rx_len);
+                        memcpy(g_bps_balancing_page[0],in_data,rx_len);
                         break;
                     case CAN_BPS_STATUS_ID:         // BPS status
-                        memcpy(g_bps_status_page[16],in_data,rx_len);
+                        memcpy(g_bps_status_page[0],in_data,rx_len);
                         break;
                     default:                        // Invalid CAN id
                         break;

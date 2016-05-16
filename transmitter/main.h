@@ -49,9 +49,9 @@
 // X macro table of telemetry packets
 //        Packet name          ,    ID, Length
 #define TELEM_ID_TABLE(ENTRY)               \
-    ENTRY(TELEM_MOTOR          ,  0x12,  8) \
+    ENTRY(TELEM_MOTOR          ,  0x45,  8) \
     ENTRY(TELEM_BPS_VOLTAGE    ,  0x36, 60) \
-    ENTRY(TELEM_BPS_TEMPERATURE,  0x45, 24) \
+    ENTRY(TELEM_BPS_TEMPERATURE,  0x12, 24) \
     ENTRY(TELEM_BPS_CURRENT    ,  0x55,  2) \
     ENTRY(TELEM_BPS_BALANCING  ,  0x69,  4) \
     ENTRY(TELEM_BPS_STATUS     ,  0x53,  2)
