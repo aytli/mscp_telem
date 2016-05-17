@@ -21,7 +21,9 @@ enum
     TELEM_ID_TABLE(EXPAND_AS_LENGTH)
 };
 
-static int8 g_motor_page[TELEM_MOTOR_LEN];
+static int8 g_motor_bus_vi_page[TELEM_MOTOR_BUS_VI_LEN];
+static int8 g_motor_velocity_page[TELEM_MOTOR_VELOCITY_LEN];
+static int8 g_motor_temperature_page[TELEM_MOTOR_TEMPERATURE_LEN];
 static int8 g_bps_voltage_page[TELEM_BPS_VOLTAGE_LEN];
 static int8 g_bps_temperature_page[TELEM_BPS_TEMPERATURE_LEN];
 static int8 g_bps_current_page[TELEM_BPS_CURRENT_LEN];
@@ -57,12 +59,14 @@ void isr_timer2(void)
     {
         ms = 0;
         output_toggle(TX_PIN);
-        send_data(TELEM_MOTOR_ID          , TELEM_MOTOR_LEN          , g_motor_page);
-        send_data(TELEM_BPS_VOLTAGE_ID    , TELEM_BPS_VOLTAGE_LEN    , g_bps_voltage_page);
-        send_data(TELEM_BPS_TEMPERATURE_ID, TELEM_BPS_TEMPERATURE_LEN, g_bps_temperature_page);
-        send_data(TELEM_BPS_CURRENT_ID    , TELEM_BPS_CURRENT_LEN    , g_bps_current_page);
-        send_data(TELEM_BPS_BALANCING_ID  , TELEM_BPS_BALANCING_LEN  , g_bps_balancing_page);
-        send_data(TELEM_BPS_STATUS_ID     , TELEM_BPS_STATUS_LEN     , g_bps_status_page);
+        send_data(TELEM_MOTOR_BUS_VI_ID     , TELEM_MOTOR_BUS_VI_LEN     , g_motor_bus_vi_page);
+        send_data(TELEM_MOTOR_VELOCITY_ID   , TELEM_MOTOR_VELOCITY_LEN   , g_motor_velocity_page);
+        send_data(TELEM_MOTOR_TEMPERATURE_ID, TELEM_MOTOR_TEMPERATURE_LEN, g_motor_temperature_page);
+        send_data(TELEM_BPS_VOLTAGE_ID      , TELEM_BPS_VOLTAGE_LEN      , g_bps_voltage_page);
+        send_data(TELEM_BPS_TEMPERATURE_ID  , TELEM_BPS_TEMPERATURE_LEN  , g_bps_temperature_page);
+        send_data(TELEM_BPS_CURRENT_ID      , TELEM_BPS_CURRENT_LEN      , g_bps_current_page);
+        send_data(TELEM_BPS_BALANCING_ID    , TELEM_BPS_BALANCING_LEN    , g_bps_balancing_page);
+        send_data(TELEM_BPS_STATUS_ID       , TELEM_BPS_STATUS_LEN       , g_bps_status_page);
     }
     else
     {
@@ -98,10 +102,13 @@ void main()
                 switch(rx_id)
                 {
                     case CAN_MOTOR_BUS_VI_ID:       // Motor voltage and current
+                        memcpy(g_motor_bus_vi_page[0],in_data,rx_len);
                         break;
                     case CAN_MOTOR_VELOCITY_ID:     // Motor velocity
+                        memcpy(g_motor_velocity_page[0],in_data,rx_len);
                         break;
                     case CAN_MOTOR_TEMPERATURE_ID:  // Motor temperature
+                        memcpy(g_motor_temperature_page[0],in_data,rx_len);
                         break;
                     case CAN_BPS_VOLTAGE1_ID:       // BPS voltage 1
                         memcpy(g_bps_voltage_page[0],in_data,rx_len);
