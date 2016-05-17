@@ -31,16 +31,17 @@ static int8 g_bps_balancing_page[TELEM_BPS_BALANCING_LEN];
 static int8 g_bps_status_page[TELEM_BPS_STATUS_LEN];
 static int8 g_mppt_page[TELEM_MPPT_LEN];
 
+// Puts the xbee into bypass mode
+// Documentation: http://xbee-sdk-doc.readthedocs.io/en/stable/doc/tips_tricks/
 void xbee_init(void)
 {
-    // Puts the xbee into bypass mode
-    // Documentation: http://xbee-sdk-doc.readthedocs.io/en/stable/doc/tips_tricks/
     delay_ms(100);
     putc('b');
     putc('b');
     delay_ms(100);
 }
 
+// Sends a page of data over the radio module
 void send_data(int8 id, int len, int * data)
 {
     int i;
@@ -52,6 +53,8 @@ void send_data(int8 id, int len, int * data)
     }
 }
 
+// INT_TIMER2 programmed to trigger every 1ms with a 20MHz clock
+// Telemetry data will be sent out with a period of HEARTBEAT_PERIOD_MS
 int16 ms;
 #int_timer2
 void isr_timer2(void)
@@ -102,6 +105,8 @@ void main()
             {
                 output_toggle(RX_PIN);  // CAN data received
                 
+                // Check the ID of the received packet and update the
+                // corresponding page
                 switch(rx_id)
                 {
                     case CAN_MOTOR_BUS_VI_ID:       // Motor voltage and current
