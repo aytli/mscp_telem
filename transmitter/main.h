@@ -30,24 +30,24 @@
     ENTRY(CAN_MOTOR_BUS_VI       , 0x402,  8) \
     ENTRY(CAN_MOTOR_VELOCITY     , 0x403,  8) \
     ENTRY(CAN_MOTOR_TEMPERATURE  , 0x40B,  8) \
-    ENTRY(CAN_BPS_VOLTAGE1       , 0x500,  8) \
-    ENTRY(CAN_BPS_VOLTAGE2       , 0x501,  8) \
-    ENTRY(CAN_BPS_VOLTAGE3       , 0x502,  8) \
-    ENTRY(CAN_BPS_VOLTAGE4       , 0x503,  8) \
-    ENTRY(CAN_BPS_VOLTAGE5       , 0x504,  8) \
-    ENTRY(CAN_BPS_VOLTAGE6       , 0x505,  8) \
-    ENTRY(CAN_BPS_VOLTAGE7       , 0x506,  8) \
-    ENTRY(CAN_BPS_VOLTAGE8       , 0x507,  4) \
-    ENTRY(CAN_BPS_TEMPERATURE1   , 0x508,  8) \
-    ENTRY(CAN_BPS_TEMPERATURE2   , 0x509,  8) \
-    ENTRY(CAN_BPS_TEMPERATURE3   , 0x50A,  8) \
-    ENTRY(CAN_BPS_CURRENT        , 0x50B,  2) \
-    ENTRY(CAN_BPS_BALANCING      , 0x50C,  4) \
-    ENTRY(CAN_BPS_STATUS         , 0x50D,  2) \
+    ENTRY(CAN_BPS_VOLTAGE1       , 0x600,  8) \
+    ENTRY(CAN_BPS_VOLTAGE2       , 0x601,  8) \
+    ENTRY(CAN_BPS_VOLTAGE3       , 0x602,  8) \
+    ENTRY(CAN_BPS_VOLTAGE4       , 0x603,  8) \
+    ENTRY(CAN_BPS_VOLTAGE5       , 0x604,  8) \
+    ENTRY(CAN_BPS_VOLTAGE6       , 0x605,  8) \
+    ENTRY(CAN_BPS_VOLTAGE7       , 0x606,  8) \
+    ENTRY(CAN_BPS_VOLTAGE8       , 0x607,  4) \
+    ENTRY(CAN_BPS_TEMPERATURE1   , 0x608,  8) \
+    ENTRY(CAN_BPS_TEMPERATURE2   , 0x609,  8) \
+    ENTRY(CAN_BPS_TEMPERATURE3   , 0x60A,  8) \
+    ENTRY(CAN_BPS_CURRENT        , 0x60B,  2) \
+    ENTRY(CAN_BPS_BALANCING      , 0x60C,  4) \
+    ENTRY(CAN_BPS_STATUS         , 0x60D,  2) \
     ENTRY(CAN_MPPT1              , 0x771,  8) \
     ENTRY(CAN_MPPT2              , 0x772,  8) \
     ENTRY(CAN_MPPT3              , 0x773,  8) \
-    ENTRY(CAN_MPPT4              , 0x774,  8) \
+    ENTRY(CAN_MPPT4              , 0x774,  8)
 
 // X macro table of telemetry packets
 //        Packet name            ,    ID, Length
