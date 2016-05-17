@@ -99,58 +99,59 @@ void main()
             if (can_getd(rx_id, in_data, rx_len, rxstat))
             {
                 output_toggle(RX_PIN);  // CAN data received
+                
                 switch(rx_id)
                 {
                     case CAN_MOTOR_BUS_VI_ID:       // Motor voltage and current
-                        memcpy(g_motor_bus_vi_page[0],in_data,rx_len);
+                        memcpy(&g_motor_bus_vi_page[0],in_data,rx_len);
                         break;
                     case CAN_MOTOR_VELOCITY_ID:     // Motor velocity
-                        memcpy(g_motor_velocity_page[0],in_data,rx_len);
+                        memcpy(&g_motor_velocity_page[0],in_data,rx_len);
                         break;
                     case CAN_MOTOR_TEMPERATURE_ID:  // Motor temperature
-                        memcpy(g_motor_temperature_page[0],in_data,rx_len);
+                        memcpy(&g_motor_temperature_page[0],in_data,rx_len);
                         break;
                     case CAN_BPS_VOLTAGE1_ID:       // BPS voltage 1
-                        memcpy(g_bps_voltage_page[0],in_data,rx_len);
+                        memcpy(&g_bps_voltage_page[0],in_data,rx_len);
                         break;
                     case CAN_BPS_VOLTAGE2_ID:       // BPS voltage 2
-                        memcpy(g_bps_voltage_page[8],in_data,rx_len);
-                        break;
+                        memcpy(&g_bps_voltage_page[8],in_data,rx_len);
+                       break;
                     case CAN_BPS_VOLTAGE3_ID:       // BPS voltage 3
-                        memcpy(g_bps_voltage_page[16],in_data,rx_len);
+                        memcpy(&g_bps_voltage_page[16],in_data,rx_len);
                         break;
                     case CAN_BPS_VOLTAGE4_ID:       // BPS voltage 4
-                        memcpy(g_bps_voltage_page[24],in_data,rx_len);
+                        memcpy(&g_bps_voltage_page[24],in_data,rx_len);
                         break;
                     case CAN_BPS_VOLTAGE5_ID:       // BPS voltage 5
-                        memcpy(g_bps_voltage_page[32],in_data,rx_len);
+                        memcpy(&g_bps_voltage_page[32],in_data,rx_len);
                         break;
                     case CAN_BPS_VOLTAGE6_ID:       // BPS voltage 6
-                        memcpy(g_bps_voltage_page[40],in_data,rx_len);
+                        memcpy(&g_bps_voltage_page[40],in_data,rx_len);
                         break;
                     case CAN_BPS_VOLTAGE7_ID:       // BPS voltage 7
-                        memcpy(g_bps_voltage_page[48],in_data,rx_len);
+                        memcpy(&g_bps_voltage_page[48],in_data,rx_len);
                         break;
                     case CAN_BPS_VOLTAGE8_ID:       // BPS voltage 8
-                        memcpy(g_bps_voltage_page[56],in_data,rx_len);
+                        memcpy(&g_bps_voltage_page[56],in_data,rx_len);
                         break;
                     case CAN_BPS_TEMPERATURE1_ID:   // BPS temperature 1
-                        memcpy(g_bps_temperature_page[0],in_data,rx_len);
+                        memcpy(&g_bps_temperature_page[0],in_data,rx_len);
                         break;
                     case CAN_BPS_TEMPERATURE2_ID:   // BPS temperature 2
-                        memcpy(g_bps_temperature_page[8],in_data,rx_len);
+                        memcpy(&g_bps_temperature_page[8],in_data,rx_len);
                         break;
                     case CAN_BPS_TEMPERATURE3_ID:   // BPS temperature 3
-                        memcpy(g_bps_temperature_page[16],in_data,rx_len);
+                        memcpy(&g_bps_temperature_page[16],in_data,rx_len);
                         break;
                     case CAN_BPS_CURRENT_ID:        // BPS current
-                        memcpy(g_bps_current_page[0],in_data,rx_len);
+                        memcpy(&g_bps_current_page[0],in_data,rx_len);
                         break;
                     case CAN_BPS_BALANCING_ID:      // BPS balancing bits
-                        memcpy(g_bps_balancing_page[0],in_data,rx_len);
+                        memcpy(&g_bps_balancing_page[0],in_data,rx_len);
                         break;
                     case CAN_BPS_STATUS_ID:         // BPS status
-                        memcpy(g_bps_status_page[0],in_data,rx_len);
+                        memcpy(&g_bps_status_page[0],in_data,rx_len);
                         break;
                     default:                        // Invalid CAN id
                         break;
