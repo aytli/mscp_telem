@@ -6,19 +6,19 @@
 // Creates a list of CAN packet IDs
 enum
 {
-    CAN_ID_TABLE(EXPAND_AS_CAN_ID)
+    CAN_ID_TABLE(EXPAND_AS_ID_ENUM)
 };
 
 // Creates a list of telemetry packet IDs
 enum
 {
-    TELEM_ID_TABLE(EXPAND_AS_TELEM_ID)
+    TELEM_ID_TABLE(EXPAND_AS_ID_ENUM)
 };
 
 // Creates a list of telemetry packet lengths
 enum
 {
-    TELEM_ID_TABLE(EXPAND_AS_LENGTH)
+    TELEM_ID_TABLE(EXPAND_AS_LEN_ENUM)
 };
 
 static int8 g_motor_bus_vi_page[TELEM_MOTOR_BUS_VI_LEN];
