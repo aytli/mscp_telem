@@ -105,8 +105,7 @@ void main()
             {
                 output_toggle(RX_PIN);  // CAN data received
                 
-                // Check the ID of the received packet and update the
-                // corresponding page
+                // Check the ID of the received packet and update the corresponding page
                 switch(rx_id)
                 {
                     case CAN_MOTOR_BUS_VI_ID:       // Motor voltage and current
@@ -160,16 +159,16 @@ void main()
                     case CAN_BPS_STATUS_ID:         // BPS status
                         memcpy(&g_bps_status_page[0],in_data,rx_len);
                         break;
-                    case CAN_MPPT1_ID:         // BPS status
+                    case CAN_MPPT1_ID:              // MPPT 1 data
                         memcpy(&g_mppt_page[0],in_data,rx_len);
                         break;
-                    case CAN_MPPT2_ID:         // BPS status
+                    case CAN_MPPT2_ID:              // MPPT 2 data
                         memcpy(&g_mppt_page[8],in_data,rx_len);
                         break;
-                    case CAN_MPPT3_ID:         // BPS status
+                    case CAN_MPPT3_ID:              // MPPT 3 data
                         memcpy(&g_mppt_page[16],in_data,rx_len);
                         break;
-                    case CAN_MPPT4_ID:         // BPS status
+                    case CAN_MPPT4_ID:              // MPPT 4 data
                         memcpy(&g_mppt_page[24],in_data,rx_len);
                         break;
                     default:                        // Invalid CAN id
