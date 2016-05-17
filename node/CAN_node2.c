@@ -45,10 +45,10 @@
     ENTRY(CAN_BPS_CURRENT        , 0x50B,  2) \
     ENTRY(CAN_BPS_BALANCING      , 0x50C,  4) \
     ENTRY(CAN_BPS_STATUS         , 0x50D,  2) \
-    ENTRY(CAN_MPPT1              , 0x701,  8) \
-    ENTRY(CAN_MPPT2              , 0x702,  8) \
-    ENTRY(CAN_MPPT3              , 0x703,  8) \
-    ENTRY(CAN_MPPT4              , 0x704,  8) \
+    ENTRY(CAN_MPPT1              , 0x771,  8) \
+    ENTRY(CAN_MPPT2              , 0x772,  8) \
+    ENTRY(CAN_MPPT3              , 0x773,  8) \
+    ENTRY(CAN_MPPT4              , 0x774,  8) \
 
 // X macro table of telemetry packets
 //        Packet name            ,    ID, Length
@@ -62,6 +62,14 @@
     ENTRY(TELEM_BPS_BALANCING    ,  0x13,  4) \
     ENTRY(TELEM_BPS_STATUS       ,  0x17,  2) \
     ENTRY(TELEM_MPPT             ,  0x1D, 32)
+
+// X macro table of CAN bus destinations to be polled
+//        Packet name            ,    ID
+#define CAN_POLLING_TABLE(ENTRY)          \
+    ENTRY(POLLING_MPPT1          , 0x711) \
+    ENTRY(POLLING_MPPT2          , 0x712) \
+    ENTRY(POLLING_MPPT3          , 0x713) \
+    ENTRY(POLLING_MPPT4          , 0x714)
 
 // Creates a list of CAN packet IDs
 enum
