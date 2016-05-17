@@ -44,7 +44,11 @@
     ENTRY(CAN_BPS_TEMPERATURE3   , 0x50A,  8) \
     ENTRY(CAN_BPS_CURRENT        , 0x50B,  2) \
     ENTRY(CAN_BPS_BALANCING      , 0x50C,  4) \
-    ENTRY(CAN_BPS_STATUS         , 0x50D,  2)
+    ENTRY(CAN_BPS_STATUS         , 0x50D,  2) \
+    ENTRY(CAN_MPPT1              , 0x701,  8) \
+    ENTRY(CAN_MPPT2              , 0x702,  8) \
+    ENTRY(CAN_MPPT3              , 0x703,  8) \
+    ENTRY(CAN_MPPT4              , 0x704,  8) \
 
 // X macro table of telemetry packets
 //        Packet name            ,    ID, Length
@@ -56,7 +60,8 @@
     ENTRY(TELEM_BPS_TEMPERATURE  ,  0x0D, 24) \
     ENTRY(TELEM_BPS_CURRENT      ,  0x11,  2) \
     ENTRY(TELEM_BPS_BALANCING    ,  0x13,  4) \
-    ENTRY(TELEM_BPS_STATUS       ,  0x17,  2)
+    ENTRY(TELEM_BPS_STATUS       ,  0x17,  2) \
+    ENTRY(TELEM_MPPT             ,  0x1D, 32)
 
 // Creates a list of CAN packet IDs
 enum
@@ -110,6 +115,7 @@ static int8 g_bps_temperature_page[TELEM_BPS_TEMPERATURE_LEN]     = {0};
 static int8 g_bps_current_page[TELEM_BPS_CURRENT_LEN]             = {0};
 static int8 g_bps_balancing_page[TELEM_BPS_BALANCING_LEN]         = {0};
 static int8 g_bps_status_page[TELEM_BPS_STATUS_LEN]               = {0};
+static int8 g_mppt_page[TELEM_MPPT_LEN]                           = {0};
 
 int16 ms;
 #int_timer2
@@ -262,11 +268,39 @@ void main()
                              tx_pri,tx_ext,tx_rtr);
                     g_bps_status_page[0]++;
                     break;
+                case 17:         // MPPT data
+                    can_putd(CAN_MPPT1_ID,
+                             g_mppt_page,
+                             CAN_MPPT1_len,
+                             tx_pri,tx_ext,tx_rtr);
+                    g_mppt_page[1]++;
+                    break;
+                case 18:         // MPPT data
+                    can_putd(CAN_MPPT2_ID,
+                             g_mppt_page+8,
+                             CAN_MPPT2_len,
+                             tx_pri,tx_ext,tx_rtr);
+                    g_mppt_page[9]++;
+                    break;
+                case 19:         // MPPT data
+                    can_putd(CAN_MPPT3_ID,
+                             g_mppt_page+16,
+                             CAN_MPPT3_len,
+                             tx_pri,tx_ext,tx_rtr);
+                    g_mppt_page[17]++;
+                    break;
+                case 20:         // MPPT data
+                    can_putd(CAN_MPPT4_ID,
+                             g_mppt_page+24,
+                             CAN_MPPT4_len,
+                             tx_pri,tx_ext,tx_rtr);
+                    g_mppt_page[25]++;
+                    break;
                 default:                        // Invalid CAN id
                     break;
             }
             
-            if (i >= 16)
+            if (i >= 20)
             {
                 i = 0;
             }

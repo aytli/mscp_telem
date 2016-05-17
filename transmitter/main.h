@@ -43,7 +43,11 @@
     ENTRY(CAN_BPS_TEMPERATURE3   , 0x50A,  8) \
     ENTRY(CAN_BPS_CURRENT        , 0x50B,  2) \
     ENTRY(CAN_BPS_BALANCING      , 0x50C,  4) \
-    ENTRY(CAN_BPS_STATUS         , 0x50D,  2)
+    ENTRY(CAN_BPS_STATUS         , 0x50D,  2) \
+    ENTRY(CAN_MPPT1              , 0x701,  8) \
+    ENTRY(CAN_MPPT2              , 0x702,  8) \
+    ENTRY(CAN_MPPT3              , 0x703,  8) \
+    ENTRY(CAN_MPPT4              , 0x704,  8) \
 
 // X macro table of telemetry packets
 //        Packet name            ,    ID, Length
@@ -55,4 +59,5 @@
     ENTRY(TELEM_BPS_TEMPERATURE  ,  0x0D, 24) \
     ENTRY(TELEM_BPS_CURRENT      ,  0x11,  2) \
     ENTRY(TELEM_BPS_BALANCING    ,  0x13,  4) \
-    ENTRY(TELEM_BPS_STATUS       ,  0x17,  2)
+    ENTRY(TELEM_BPS_STATUS       ,  0x17,  2) \
+    ENTRY(TELEM_MPPT             ,  0x1D, 32)

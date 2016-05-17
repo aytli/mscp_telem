@@ -29,6 +29,7 @@ static int8 g_bps_temperature_page[TELEM_BPS_TEMPERATURE_LEN];
 static int8 g_bps_current_page[TELEM_BPS_CURRENT_LEN];
 static int8 g_bps_balancing_page[TELEM_BPS_BALANCING_LEN];
 static int8 g_bps_status_page[TELEM_BPS_STATUS_LEN];
+static int8 g_mppt_page[TELEM_MPPT_LEN];
 
 void xbee_init(void)
 {
@@ -67,6 +68,7 @@ void isr_timer2(void)
         send_data(TELEM_BPS_CURRENT_ID      , TELEM_BPS_CURRENT_LEN      , g_bps_current_page);
         send_data(TELEM_BPS_BALANCING_ID    , TELEM_BPS_BALANCING_LEN    , g_bps_balancing_page);
         send_data(TELEM_BPS_STATUS_ID       , TELEM_BPS_STATUS_LEN       , g_bps_status_page);
+        send_data(TELEM_MPPT_ID             , TELEM_MPPT_LEN             , g_mppt_page);
     }
     else
     {
@@ -152,6 +154,18 @@ void main()
                         break;
                     case CAN_BPS_STATUS_ID:         // BPS status
                         memcpy(&g_bps_status_page[0],in_data,rx_len);
+                        break;
+                    case CAN_MPPT1_ID:         // BPS status
+                        memcpy(&g_mppt_page[0],in_data,rx_len);
+                        break;
+                    case CAN_MPPT2_ID:         // BPS status
+                        memcpy(&g_mppt_page[8],in_data,rx_len);
+                        break;
+                    case CAN_MPPT3_ID:         // BPS status
+                        memcpy(&g_mppt_page[16],in_data,rx_len);
+                        break;
+                    case CAN_MPPT4_ID:         // BPS status
+                        memcpy(&g_mppt_page[24],in_data,rx_len);
                         break;
                     default:                        // Invalid CAN id
                         break;
