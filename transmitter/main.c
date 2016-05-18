@@ -1,8 +1,8 @@
 #include "main.h"
 #include "can18F4580_mscp.c"
 
-#define HEARTBEAT_PERIOD_MS 200
-#define POLLING_PERIOD_MS   50
+#define SENDING_PERIOD_MS 100
+#define POLLING_PERIOD_MS  50
 
 // Creates a list of CAN packet IDs
 enum
@@ -75,12 +75,12 @@ void send_data(int8 id, int len, int * data)
 }
 
 // INT_TIMER2 programmed to trigger every 1ms with a 20MHz clock
-// Telemetry data will be sent out with a period of HEARTBEAT_PERIOD_MS
+// Telemetry data will be sent out with a period of SENDING_PERIOD_MS
 #int_timer2
 void isr_timer2(void)
 {
     static int16 ms;
-    if (ms >= HEARTBEAT_PERIOD_MS)
+    if (ms >= SENDING_PERIOD_MS)
     {
         ms = 0; // Reset timer
         output_toggle(TX_PIN);
