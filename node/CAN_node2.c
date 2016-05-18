@@ -257,7 +257,7 @@ void main()
                     break;
                 
                 // BPS DATA
-                case 4:       // BPS voltage 1
+                /*case 4:       // BPS voltage 1
                     can_putd(CAN_BPS_VOLTAGE1_ID,
                              g_bps_voltage_page,
                              CAN_BPS_VOLTAGE1_LEN,
@@ -354,7 +354,7 @@ void main()
                              CAN_BPS_STATUS_len,
                              tx_pri,tx_ext,tx_rtr);
                     g_bps_status_page[0]++;
-                    break;
+                    break;*/
                 
                 // PMS data
                 case 18:        // PMS data (Aux voltage/temperature, DC/DC temperature)
