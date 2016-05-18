@@ -46,11 +46,12 @@
     ENTRY(CAN_BPS_CURRENT        , 0x60B,  2) \
     ENTRY(CAN_BPS_BALANCING      , 0x60C,  4) \
     ENTRY(CAN_BPS_STATUS         , 0x60D,  2) \
+    ENTRY(CAN_PMS_DATA           , 0x60E,  8) \
     ENTRY(CAN_MPPT1              , 0x771,  8) \
     ENTRY(CAN_MPPT2              , 0x772,  8) \
     ENTRY(CAN_MPPT3              , 0x773,  8) \
     ENTRY(CAN_MPPT4              , 0x774,  8)
-#define N_CAN_ID 22
+#define N_CAN_ID 23
 
 // X macro table of telemetry packets
 //        Packet name            ,    ID, Length
@@ -64,8 +65,9 @@
     ENTRY(TELEM_BPS_CURRENT      ,  0x11,  2) \
     ENTRY(TELEM_BPS_BALANCING    ,  0x13,  4) \
     ENTRY(TELEM_BPS_STATUS       ,  0x17,  2) \
+    ENTRY(TELEM_PMS_DATA         ,  0x19,  8) \
     ENTRY(TELEM_MPPT             ,  0x1D, 32)
-#define N_TELEM_ID 10
+#define N_TELEM_ID 11
 
 // X macro table of CAN bus destinations to be polled
 //        Packet name            ,    ID
@@ -138,6 +140,7 @@ static int8 g_bps_temperature_page[TELEM_BPS_TEMPERATURE_LEN]     = {0};
 static int8 g_bps_current_page[TELEM_BPS_CURRENT_LEN]             = {0};
 static int8 g_bps_balancing_page[TELEM_BPS_BALANCING_LEN]         = {0};
 static int8 g_bps_status_page[TELEM_BPS_STATUS_LEN]               = {0};
+static int8 g_pms_page[TELEM_PMS_DATA_LEN]                        = {0};
 static int8 g_mppt_page[TELEM_MPPT_LEN]                           = {0};
 
 static int1 gb_motor_hs_flag  = 0;
@@ -352,7 +355,18 @@ void main()
                              tx_pri,tx_ext,tx_rtr);
                     g_bps_status_page[0]++;
                     break;
-                case 18:         // MPPT data (polled)
+                
+                // PMS data
+                case 18:        // PMS data (Aux voltage/temperature, DC/DC temperature)
+                    can_putd(CAN_PMS_DATA_ID,
+                             g_pms_page,
+                             CAN_PMS_DATA_LEN,
+                             tx_pri,tx_ext,tx_rtr);
+                    g_pms_page[0]++;
+                    break;
+                
+                // MPPT DATA
+                case 19:         // MPPT data (polled)
                     if (gb_mppt1_flag == true)
                     {
                     can_putd(CAN_MPPT1_ID,
@@ -363,7 +377,7 @@ void main()
                         gb_mppt1_flag = false;
                     }
                     break;
-                case 19:         // MPPT data (polled)
+                case 20:         // MPPT data (polled)
                     if (gb_mppt2_flag == true)
                     {
                         can_putd(CAN_MPPT2_ID,
@@ -374,7 +388,7 @@ void main()
                         gb_mppt2_flag = false;
                     }
                     break;
-                case 20:         // MPPT data (polled)
+                case 21:         // MPPT data (polled)
                     if (gb_mppt3_flag == true)
                     {
                         can_putd(CAN_MPPT3_ID,
@@ -385,7 +399,7 @@ void main()
                         gb_mppt3_flag = false;
                     }
                     break;
-                case 21:         // MPPT data (polled)
+                case 22:         // MPPT data (polled)
                     if (gb_mppt4_flag == true)
                     {
                         can_putd(CAN_MPPT4_ID,
