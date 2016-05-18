@@ -23,13 +23,15 @@
 
 #define EXPAND_AS_ID_ENUM(a,b,c)  a##_ID  = b,
 #define EXPAND_AS_LEN_ENUM(a,b,c) a##_LEN = c,
+#define EXPAND_AS_ID_ARRAY(a,b)             b,
 
 // X macro table of CANbus packets
 //        Packet name            ,    ID, Length
 #define CAN_ID_TABLE(ENTRY)                   \
     ENTRY(CAN_MOTOR_BUS_VI       , 0x402,  8) \
     ENTRY(CAN_MOTOR_VELOCITY     , 0x403,  8) \
-    ENTRY(CAN_MOTOR_TEMPERATURE  , 0x40B,  8) \
+    ENTRY(CAN_MOTOR_HS_TEMP      , 0x40B,  8) \
+    ENTRY(CAN_MOTOR_DSP_TEMP     , 0x40C,  8) \
     ENTRY(CAN_BPS_VOLTAGE1       , 0x600,  8) \
     ENTRY(CAN_BPS_VOLTAGE2       , 0x601,  8) \
     ENTRY(CAN_BPS_VOLTAGE3       , 0x602,  8) \
@@ -48,24 +50,30 @@
     ENTRY(CAN_MPPT2              , 0x772,  8) \
     ENTRY(CAN_MPPT3              , 0x773,  8) \
     ENTRY(CAN_MPPT4              , 0x774,  8)
+#define N_CAN_ID 22
 
 // X macro table of telemetry packets
 //        Packet name            ,    ID, Length
 #define TELEM_ID_TABLE(ENTRY)                 \
     ENTRY(TELEM_MOTOR_BUS_VI     ,  0x03,  8) \
     ENTRY(TELEM_MOTOR_VELOCITY   ,  0x05,  8) \
-    ENTRY(TELEM_MOTOR_TEMPERATURE,  0x07,  8) \
+    ENTRY(TELEM_MOTOR_HS_TEMP    ,  0x07,  8) \
+    ENTRY(TELEM_MOTOR_DSP_TEMP   ,  0x09,  8) \
     ENTRY(TELEM_BPS_VOLTAGE      ,  0x0B, 60) \
     ENTRY(TELEM_BPS_TEMPERATURE  ,  0x0D, 24) \
     ENTRY(TELEM_BPS_CURRENT      ,  0x11,  2) \
     ENTRY(TELEM_BPS_BALANCING    ,  0x13,  4) \
     ENTRY(TELEM_BPS_STATUS       ,  0x17,  2) \
     ENTRY(TELEM_MPPT             ,  0x1D, 32)
+#define N_TELEM_ID 10
 
 // X macro table of CAN bus destinations to be polled
 //        Packet name            ,    ID
 #define CAN_POLLING_TABLE(ENTRY)          \
+    ENTRY(POLLING_MOTOR_HS_TEMP  , 0x40B) \
+    ENTRY(POLLING_MOTOR_DSP_TEMP , 0x40C) \
     ENTRY(POLLING_MPPT1          , 0x711) \
     ENTRY(POLLING_MPPT2          , 0x712) \
     ENTRY(POLLING_MPPT3          , 0x713) \
     ENTRY(POLLING_MPPT4          , 0x714)
+#define N_CAN_POLLING_ID 6

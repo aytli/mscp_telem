@@ -1,7 +1,8 @@
 #include "main.h"
 #include "can18F4580_mscp.c"
 
-#define HEARTBEAT_PERIOD_MS 500
+#define HEARTBEAT_PERIOD_MS 200
+#define POLLING_PERIOD_MS   50
 
 // Creates a list of CAN packet IDs
 enum
@@ -21,15 +22,34 @@ enum
     TELEM_ID_TABLE(EXPAND_AS_LEN_ENUM)
 };
 
+// Creates a list of polling IDs
+enum
+{
+    CAN_POLLING_TABLE(EXPAND_AS_ID_ENUM)
+};
+
+// Creates an array of polling IDs
+static int16 g_polling_id[N_CAN_POLLING_ID] =
+{
+    POLLING_MOTOR_HS_TEMP_ID,
+    POLLING_MOTOR_DSP_TEMP_ID,
+    POLLING_MPPT1_ID,
+    POLLING_MPPT2_ID,
+    POLLING_MPPT3_ID,
+    POLLING_MPPT4_ID
+};
+
 static int8 g_motor_bus_vi_page[TELEM_MOTOR_BUS_VI_LEN];
 static int8 g_motor_velocity_page[TELEM_MOTOR_VELOCITY_LEN];
-static int8 g_motor_temperature_page[TELEM_MOTOR_TEMPERATURE_LEN];
+static int8 g_motor_hs_temp_page[TELEM_MOTOR_HS_TEMP_LEN];
+static int8 g_motor_dsp_temp_page[TELEM_MOTOR_DSP_TEMP_LEN];
 static int8 g_bps_voltage_page[TELEM_BPS_VOLTAGE_LEN];
 static int8 g_bps_temperature_page[TELEM_BPS_TEMPERATURE_LEN];
 static int8 g_bps_current_page[TELEM_BPS_CURRENT_LEN];
 static int8 g_bps_balancing_page[TELEM_BPS_BALANCING_LEN];
 static int8 g_bps_status_page[TELEM_BPS_STATUS_LEN];
 static int8 g_mppt_page[TELEM_MPPT_LEN];
+static int1 gb_poll;
 
 // Puts the xbee into bypass mode
 // Documentation: http://xbee-sdk-doc.readthedocs.io/en/stable/doc/tips_tricks/
@@ -55,23 +75,41 @@ void send_data(int8 id, int len, int * data)
 
 // INT_TIMER2 programmed to trigger every 1ms with a 20MHz clock
 // Telemetry data will be sent out with a period of HEARTBEAT_PERIOD_MS
-int16 ms;
 #int_timer2
 void isr_timer2(void)
 {
+    static int16 ms;
     if (ms >= HEARTBEAT_PERIOD_MS)
     {
-        ms = 0;
+        ms = 0; // Reset timer
         output_toggle(TX_PIN);
         send_data(TELEM_MOTOR_BUS_VI_ID     , TELEM_MOTOR_BUS_VI_LEN     , g_motor_bus_vi_page);
         send_data(TELEM_MOTOR_VELOCITY_ID   , TELEM_MOTOR_VELOCITY_LEN   , g_motor_velocity_page);
-        send_data(TELEM_MOTOR_TEMPERATURE_ID, TELEM_MOTOR_TEMPERATURE_LEN, g_motor_temperature_page);
+        send_data(TELEM_MOTOR_HS_TEMP_ID    , TELEM_MOTOR_HS_TEMP_LEN    , g_motor_hs_temp_page);
+        send_data(TELEM_MOTOR_DSP_TEMP_ID   , TELEM_MOTOR_DSP_TEMP_LEN   , g_motor_dsp_temp_page);
         send_data(TELEM_BPS_VOLTAGE_ID      , TELEM_BPS_VOLTAGE_LEN      , g_bps_voltage_page);
         send_data(TELEM_BPS_TEMPERATURE_ID  , TELEM_BPS_TEMPERATURE_LEN  , g_bps_temperature_page);
         send_data(TELEM_BPS_CURRENT_ID      , TELEM_BPS_CURRENT_LEN      , g_bps_current_page);
         send_data(TELEM_BPS_BALANCING_ID    , TELEM_BPS_BALANCING_LEN    , g_bps_balancing_page);
         send_data(TELEM_BPS_STATUS_ID       , TELEM_BPS_STATUS_LEN       , g_bps_status_page);
         send_data(TELEM_MPPT_ID             , TELEM_MPPT_LEN             , g_mppt_page);
+    }
+    else
+    {
+        ms++;
+    }
+}
+
+// INT_TIMER4 programmed to trigger every 1ms with a 20MHz clock
+// Polling request flag will be set with a period of POLLING_PERIOD_MS
+#int_timer4
+void isr_timer4(void)
+{
+    static int16 ms;
+    if (ms >= POLLING_PERIOD_MS)
+    {
+        ms = 0;                 // Reset timer
+        gb_poll = true;        // Raise polling request flag
     }
     else
     {
@@ -87,9 +125,14 @@ void main()
     int8 in_data[8];
     int rx_len;
     
-    // Set up and enable timer 2 to interrupt every 1ms with a 20MHz clock
-    setup_timer_2(T2_DIV_BY_4,79,16);
+    int tx_pri = 3;
+    int1 tx_ext = 0;
+    int1 tx_rtr = 1;
+    
+    setup_timer_2(T2_DIV_BY_4,79,16); // Timer 2 set up to interrupt every 1ms with a 20MHz clock
+    setup_timer_4(T4_DIV_BY_4,79,16); // Timer 4 set up to interrupt every 1ms with a 20MHz clock
     enable_interrupts(INT_TIMER2);
+    enable_interrupts(INT_TIMER4);
     enable_interrupts(GLOBAL);
     
     xbee_init();
@@ -108,15 +151,21 @@ void main()
                 // Check the ID of the received packet and update the corresponding page
                 switch(rx_id)
                 {
+                    // MOTOR DATA
                     case CAN_MOTOR_BUS_VI_ID:       // Motor voltage and current
                         memcpy(&g_motor_bus_vi_page[0],in_data,rx_len);
                         break;
                     case CAN_MOTOR_VELOCITY_ID:     // Motor velocity
                         memcpy(&g_motor_velocity_page[0],in_data,rx_len);
                         break;
-                    case CAN_MOTOR_TEMPERATURE_ID:  // Motor temperature
-                        memcpy(&g_motor_temperature_page[0],in_data,rx_len);
+                    case CAN_MOTOR_HS_TEMP_ID:  // Motor heatsink temperature
+                        memcpy(&g_motor_hs_temp_page[0],in_data,rx_len);
                         break;
+                    case CAN_MOTOR_DSP_TEMP_ID:  // Motor DSP temperature
+                        memcpy(&g_motor_dsp_temp_page[0],in_data,rx_len);
+                        break;
+                    
+                    // BPS DATA
                     case CAN_BPS_VOLTAGE1_ID:       // BPS voltage 1
                         memcpy(&g_bps_voltage_page[0],in_data,rx_len);
                         break;
@@ -159,6 +208,8 @@ void main()
                     case CAN_BPS_STATUS_ID:         // BPS status
                         memcpy(&g_bps_status_page[0],in_data,rx_len);
                         break;
+                    
+                    // MPPT DATA
                     case CAN_MPPT1_ID:              // MPPT 1 data
                         memcpy(&g_mppt_page[0],in_data,rx_len);
                         break;
@@ -171,9 +222,28 @@ void main()
                     case CAN_MPPT4_ID:              // MPPT 4 data
                         memcpy(&g_mppt_page[24],in_data,rx_len);
                         break;
-                    default:                        // Invalid CAN id
+                    
+                    // Invalid CAN id
+                    default:
                         break;
                 }
+            }
+        }
+        
+        // Periodically poll for data on the CAN bus
+        // Polls one destination at a time, when the gb_poll flag is set
+        if (can_tbe() && (gb_poll == true))
+        {
+            gb_poll = false;
+            can_putd(g_polling_id[i],0,8,tx_pri,tx_ext,tx_rtr);
+            
+            if (i >= (N_CAN_POLLING_ID-1))
+            {
+                i = 0;
+            }
+            else
+            {
+                i++;
             }
         }
     }
