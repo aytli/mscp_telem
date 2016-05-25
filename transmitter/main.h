@@ -45,7 +45,7 @@
     ENTRY(CAN_BPS_TEMPERATURE3   , 0x60A,  8) \
     ENTRY(CAN_BPS_CURRENT        , 0x60B,  2) \
     ENTRY(CAN_BPS_BALANCING      , 0x60C,  4) \
-    ENTRY(CAN_BPS_STATUS         , 0x60D,  2) \
+    ENTRY(CAN_BPS_STATUS         , 0x60D,  1) \
     ENTRY(CAN_PMS_DATA           , 0x60E,  8) \
     ENTRY(CAN_MPPT1              , 0x771,  8) \
     ENTRY(CAN_MPPT2              , 0x772,  8) \
@@ -64,7 +64,7 @@
     ENTRY(TELEM_BPS_TEMPERATURE  ,  0x0D, 24) \
     ENTRY(TELEM_BPS_CURRENT      ,  0x11,  2) \
     ENTRY(TELEM_BPS_BALANCING    ,  0x13,  4) \
-    ENTRY(TELEM_BPS_STATUS       ,  0x17,  2) \
+    ENTRY(TELEM_BPS_STATUS       ,  0x17,  1) \
     ENTRY(TELEM_PMS_DATA         ,  0x19,  8) \
     ENTRY(TELEM_MPPT             ,  0x1D, 32)
 #define N_TELEM_ID 11

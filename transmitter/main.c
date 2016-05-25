@@ -148,7 +148,7 @@ void main()
         {
             if (can_getd(rx_id, in_data, rx_len, rxstat))
             {
-                output_toggle(RX_PIN);  // CAN data received
+                output_toggle(PIN_C0);  // CAN data received
                 
                 // Check the ID of the received packet and update the corresponding page
                 switch(rx_id)
