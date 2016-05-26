@@ -45,7 +45,7 @@
     ENTRY(CAN_BPS_TEMPERATURE3   , 0x60A,  8) \
     ENTRY(CAN_BPS_CURRENT        , 0x60B,  2) \
     ENTRY(CAN_BPS_BALANCING      , 0x60C,  4) \
-    ENTRY(CAN_BPS_STATUS         , 0x60D,  2) \
+    ENTRY(CAN_BPS_STATUS         , 0x60D,  1) \
     ENTRY(CAN_PMS_DATA           , 0x60E,  8) \
     ENTRY(CAN_MPPT1              , 0x771,  8) \
     ENTRY(CAN_MPPT2              , 0x772,  8) \
@@ -64,7 +64,7 @@
     ENTRY(TELEM_BPS_TEMPERATURE  ,  0x0D, 24) \
     ENTRY(TELEM_BPS_CURRENT      ,  0x11,  2) \
     ENTRY(TELEM_BPS_BALANCING    ,  0x13,  4) \
-    ENTRY(TELEM_BPS_STATUS       ,  0x17,  2) \
+    ENTRY(TELEM_BPS_STATUS       ,  0x17,  1) \
     ENTRY(TELEM_PMS_DATA         ,  0x19,  8) \
     ENTRY(TELEM_MPPT             ,  0x1D, 32)
 #define N_TELEM_ID 11
@@ -131,17 +131,17 @@ static unsigned int16 g_can_id[N_CAN_ID] = {
     CAN_BPS_STATUS_ID
 };
 
-static int8 g_motor_bus_vi_page[TELEM_MOTOR_BUS_VI_LEN]           = {0};
-static int8 g_motor_velocity_page[TELEM_MOTOR_VELOCITY_LEN]       = {0};
-static int8 g_motor_hs_temp_page[TELEM_MOTOR_HS_TEMP_LEN]         = {0};
-static int8 g_motor_dsp_temp_page[TELEM_MOTOR_DSP_TEMP_LEN]       = {0};
-static int8 g_bps_voltage_page[TELEM_BPS_VOLTAGE_LEN]             = {0};
-static int8 g_bps_temperature_page[TELEM_BPS_TEMPERATURE_LEN]     = {0};
-static int8 g_bps_current_page[TELEM_BPS_CURRENT_LEN]             = {0};
-static int8 g_bps_balancing_page[TELEM_BPS_BALANCING_LEN]         = {0};
-static int8 g_bps_status_page[TELEM_BPS_STATUS_LEN]               = {0};
-static int8 g_pms_page[TELEM_PMS_DATA_LEN]                        = {0};
-static int8 g_mppt_page[TELEM_MPPT_LEN]                           = {0};
+static int8 g_motor_bus_vi_page[TELEM_MOTOR_BUS_VI_LEN]       = {0};
+static int8 g_motor_velocity_page[TELEM_MOTOR_VELOCITY_LEN]   = {0};
+static int8 g_motor_hs_temp_page[TELEM_MOTOR_HS_TEMP_LEN]     = {0};
+static int8 g_motor_dsp_temp_page[TELEM_MOTOR_DSP_TEMP_LEN]   = {0};
+static int8 g_bps_voltage_page[TELEM_BPS_VOLTAGE_LEN]         = {0};
+static int8 g_bps_temperature_page[TELEM_BPS_TEMPERATURE_LEN] = {0};
+static int8 g_bps_current_page[TELEM_BPS_CURRENT_LEN]         = {0};
+static int8 g_bps_balancing_page[TELEM_BPS_BALANCING_LEN]     = {0};
+static int8 g_bps_status_page[TELEM_BPS_STATUS_LEN]           = {0};
+static int8 g_pms_page[TELEM_PMS_DATA_LEN]                    = {0};
+static int8 g_mppt_page[TELEM_MPPT_LEN]                       = {0};
 
 static int1 gb_motor_hs_flag  = 0;
 static int1 gb_motor_dsp_flag = 0;
@@ -175,7 +175,7 @@ void main()
     can_init();
     set_tris_b((*0xF93 & 0xFB ) | 0x08);   //b3 is out, b2 is in (default)
     
-    int16 id;
+    int8 data[8] = {1,2,3,4,5,6,7,8};
     
     while(true)
     {
@@ -201,7 +201,7 @@ void main()
                     case POLLING_MPPT3_ID:
                         gb_mppt3_flag = true;
                         break;
-                    case pOLLING_MPPT4_ID:
+                    case POLLING_MPPT4_ID:
                         gb_mppt4_flag = true;
                         break;
                     default:
@@ -211,12 +211,14 @@ void main()
         }
         
         // Send CAN data
-        if (can_tbe() && (ms > 20))
+        if (can_tbe() && (ms > 200))
         {
-            ms = 0; // resets the timer interupt
-            output_toggle(LED);
+            ms = 0; // resets the timer interrupt
+            output_toggle(PIN_B1);
             
-            switch(i)
+            //can_putd(0x4FF,data,8,tx_pri,tx_ext,tx_rtr);
+            
+            /*switch(i)
             {
                 // MOTOR DATA
                 case 0:       // Motor voltage and current
@@ -257,7 +259,7 @@ void main()
                     break;
                 
                 // BPS DATA
-                /*case 4:       // BPS voltage 1
+                case 4:       // BPS voltage 1
                     can_putd(CAN_BPS_VOLTAGE1_ID,
                              g_bps_voltage_page,
                              CAN_BPS_VOLTAGE1_LEN,
@@ -354,7 +356,7 @@ void main()
                              CAN_BPS_STATUS_len,
                              tx_pri,tx_ext,tx_rtr);
                     g_bps_status_page[0]++;
-                    break;*/
+                    break;
                 
                 // PMS data
                 case 18:        // PMS data (Aux voltage/temperature, DC/DC temperature)
@@ -369,10 +371,10 @@ void main()
                 case 19:         // MPPT data (polled)
                     if (gb_mppt1_flag == true)
                     {
-                    can_putd(CAN_MPPT1_ID,
-                             g_mppt_page,
-                             CAN_MPPT1_len,
-                             tx_pri,tx_ext,tx_rtr);
+                        can_putd(CAN_MPPT1_ID,
+                                 g_mppt_page,
+                                 CAN_MPPT1_len,
+                                 tx_pri,tx_ext,tx_rtr);
                         g_mppt_page[1]++;
                         gb_mppt1_flag = false;
                     }
@@ -421,7 +423,7 @@ void main()
             else
             {
                 i++;
-            }
+            }*/
         }
     }
 }
