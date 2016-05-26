@@ -80,6 +80,46 @@ void send_data(int8 id, int len, int * data)
 void isr_timer2(void)
 {
     static int16 ms;
+    
+    static int32 motor_current  = 0x41a00000; // 20.0A
+    static int32 motor_voltage  = 0x42c80000; // 100.0V
+    g_motor_bus_vi_page[0] = (int8)((motor_current>>24)&0xFF);
+    g_motor_bus_vi_page[1] = (int8)((motor_current>>16)&0xFF);
+    g_motor_bus_vi_page[2] = (int8)((motor_current>> 8)&0xFF);
+    g_motor_bus_vi_page[3] = (int8)((motor_current>> 0)&0xFF);
+    g_motor_bus_vi_page[4] = (int8)((motor_voltage>>24)&0xFF);
+    g_motor_bus_vi_page[5] = (int8)((motor_voltage>>16)&0xFF);
+    g_motor_bus_vi_page[6] = (int8)((motor_voltage>> 8)&0xFF);
+    g_motor_bus_vi_page[7] = (int8)((motor_voltage>> 0)&0xFF);
+    
+    static int32 motor_velocity = 0x41600000; // 14 m/s
+    static int32 motor_rpm      = 0x447a0000; // 1000 rpm
+    g_motor_velocity_page[0] = (int8)((motor_velocity>>24)&0xFF);
+    g_motor_velocity_page[1] = (int8)((motor_velocity>>16)&0xFF);
+    g_motor_velocity_page[2] = (int8)((motor_velocity>> 8)&0xFF);
+    g_motor_velocity_page[3] = (int8)((motor_velocity>> 0)&0xFF);
+    g_motor_velocity_page[4] = (int8)((motor_rpm>>24)&0xFF);
+    g_motor_velocity_page[5] = (int8)((motor_rpm>>16)&0xFF);
+    g_motor_velocity_page[6] = (int8)((motor_rpm>> 8)&0xFF);
+    g_motor_velocity_page[7] = (int8)((motor_rpm>> 0)&0xFF);
+    
+    static int32 motor_hs_temp  = 0x42480000; // 50C
+    static int32 motor_int_temp = 0x42700000; // 60C
+    g_motor_hs_temp_page[0] = (int8)((motor_hs_temp>>24)&0xFF);
+    g_motor_hs_temp_page[1] = (int8)((motor_hs_temp>>16)&0xFF);
+    g_motor_hs_temp_page[2] = (int8)((motor_hs_temp>> 8)&0xFF);
+    g_motor_hs_temp_page[3] = (int8)((motor_hs_temp>> 0)&0xFF);
+    g_motor_hs_temp_page[4] = (int8)((motor_int_temp>>24)&0xFF);
+    g_motor_hs_temp_page[5] = (int8)((motor_int_temp>>16)&0xFF);
+    g_motor_hs_temp_page[6] = (int8)((motor_int_temp>> 8)&0xFF);
+    g_motor_hs_temp_page[7] = (int8)((motor_int_temp>> 0)&0xFF);
+    
+    static int32 motor_dsp_temp  = 0x42200000; // 40C
+    g_motor_dsp_temp_page[4] = (int8)((motor_dsp_temp>>24)&0xFF);
+    g_motor_dsp_temp_page[5] = (int8)((motor_dsp_temp>>16)&0xFF);
+    g_motor_dsp_temp_page[6] = (int8)((motor_dsp_temp>> 8)&0xFF);
+    g_motor_dsp_temp_page[7] = (int8)((motor_dsp_temp>> 0)&0xFF);
+    
     if (ms >= SENDING_PERIOD_MS)
     {
         ms = 0; // Reset timer
