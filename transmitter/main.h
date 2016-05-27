@@ -68,8 +68,9 @@
     ENTRY(TELEM_BPS_BALANCING    ,  0x13,  4) \
     ENTRY(TELEM_BPS_STATUS       ,  0x17,  1) \
     ENTRY(TELEM_PMS_DATA         ,  0x19,  8) \
-    ENTRY(TELEM_MPPT             ,  0x1D, 32)
-#define N_TELEM_ID 11
+    ENTRY(TELEM_MPPT             ,  0x1D, 32) \
+    ENTRY(TELEM_HEARTBEAT        ,  0xAA,  1)
+#define N_TELEM_ID 12
 
 // X macro table of CAN bus destinations to be polled
 //        Packet name            ,    ID

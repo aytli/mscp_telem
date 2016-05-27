@@ -81,6 +81,7 @@ void send_data(int8 id, int len, int * data)
 void isr_timer2(void)
 {
     static int16 ms;
+    static int1 b_heartbeat = 0;
     
     static int32 motor_current  = 0x41a00000; // 20.0A
     static int32 motor_voltage  = 0x42c80000; // 100.0V
@@ -136,6 +137,7 @@ void isr_timer2(void)
     {
         ms = 0; // Reset timer
         output_toggle(TX_PIN);
+        b_heartbeat = !b_heartbeat;
         send_data(TELEM_MOTOR_BUS_VI_ID     , TELEM_MOTOR_BUS_VI_LEN     , g_motor_bus_vi_page);
         send_data(TELEM_MOTOR_VELOCITY_ID   , TELEM_MOTOR_VELOCITY_LEN   , g_motor_velocity_page);
         send_data(TELEM_MOTOR_HS_TEMP_ID    , TELEM_MOTOR_HS_TEMP_LEN    , g_motor_hs_temp_page);
@@ -148,6 +150,7 @@ void isr_timer2(void)
         send_data(TELEM_BPS_STATUS_ID       , TELEM_BPS_STATUS_LEN       , g_bps_status_page);
         send_data(TELEM_PMS_DATA_ID         , TELEM_PMS_DATA_LEN         , g_pms_page);
         send_data(TELEM_MPPT_ID             , TELEM_MPPT_LEN             , g_mppt_page);
+        send_data(TELEM_HEARTBEAT_ID        , TELEM_HEARTBEAT_LEN        , b_heartbeat);
     }
     else
     {
