@@ -43,6 +43,7 @@ static int8 g_motor_bus_vi_page[TELEM_MOTOR_BUS_VI_LEN];
 static int8 g_motor_velocity_page[TELEM_MOTOR_VELOCITY_LEN];
 static int8 g_motor_hs_temp_page[TELEM_MOTOR_HS_TEMP_LEN];
 static int8 g_motor_dsp_temp_page[TELEM_MOTOR_DSP_TEMP_LEN];
+static int8 g_evdc_drive_page[TELEM_EVDC_DRIVE_LEN];
 static int8 g_bps_voltage_page[TELEM_BPS_VOLTAGE_LEN];
 static int8 g_bps_temperature_page[TELEM_BPS_TEMPERATURE_LEN];
 static int8 g_bps_current_page[TELEM_BPS_CURRENT_LEN];
@@ -120,6 +121,17 @@ void isr_timer2(void)
     g_motor_dsp_temp_page[6] = (int8)((motor_dsp_temp>> 8)&0xFF);
     g_motor_dsp_temp_page[7] = (int8)((motor_dsp_temp>> 0)&0xFF);
     
+    static int32 evdc_current    = 0x42200000; // 40% of max current
+    static int32 evdc_velocity   = 0x447a0000; // 1000 rpm
+    g_evdc_drive_page[0] = (int8)((evdc_current>>24)&0xFF);
+    g_evdc_drive_page[1] = (int8)((evdc_current>>16)&0xFF);
+    g_evdc_drive_page[2] = (int8)((evdc_current>> 8)&0xFF);
+    g_evdc_drive_page[3] = (int8)((evdc_current>> 0)&0xFF);
+    g_evdc_drive_page[4] = (int8)((evdc_velocity>>24)&0xFF);
+    g_evdc_drive_page[5] = (int8)((evdc_velocity>>16)&0xFF);
+    g_evdc_drive_page[6] = (int8)((evdc_velocity>> 8)&0xFF);
+    g_evdc_drive_page[7] = (int8)((evdc_velocity>> 0)&0xFF);
+    
     if (ms >= SENDING_PERIOD_MS)
     {
         ms = 0; // Reset timer
@@ -128,6 +140,7 @@ void isr_timer2(void)
         send_data(TELEM_MOTOR_VELOCITY_ID   , TELEM_MOTOR_VELOCITY_LEN   , g_motor_velocity_page);
         send_data(TELEM_MOTOR_HS_TEMP_ID    , TELEM_MOTOR_HS_TEMP_LEN    , g_motor_hs_temp_page);
         send_data(TELEM_MOTOR_DSP_TEMP_ID   , TELEM_MOTOR_DSP_TEMP_LEN   , g_motor_dsp_temp_page);
+        send_data(TELEM_EVDC_DRIVE_ID       , TELEM_EVDC_DRIVE_LEN       , g_evdc_drive_page);
         send_data(TELEM_BPS_VOLTAGE_ID      , TELEM_BPS_VOLTAGE_LEN      , g_bps_voltage_page);
         send_data(TELEM_BPS_TEMPERATURE_ID  , TELEM_BPS_TEMPERATURE_LEN  , g_bps_temperature_page);
         send_data(TELEM_BPS_CURRENT_ID      , TELEM_BPS_CURRENT_LEN      , g_bps_current_page);
@@ -205,6 +218,11 @@ void main()
                         break;
                     case CAN_MOTOR_DSP_TEMP_ID:  // Motor DSP temperature
                         memcpy(&g_motor_dsp_temp_page[0],in_data,rx_len);
+                        break;
+                    
+                    // EV DRIVER CONTROLS DATA
+                    case CAN_EVDC_DRIVE_ID:
+                        memcpy(&g_evdc_drive_page[0],in_data,rx_len);
                         break;
                     
                     // BPS DATA

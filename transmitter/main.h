@@ -32,6 +32,7 @@
     ENTRY(CAN_MOTOR_VELOCITY     , 0x403,  8) \
     ENTRY(CAN_MOTOR_HS_TEMP      , 0x40B,  8) \
     ENTRY(CAN_MOTOR_DSP_TEMP     , 0x40C,  8) \
+    ENTRY(CAN_EVDC_DRIVE         , 0x501,  8) \
     ENTRY(CAN_BPS_VOLTAGE1       , 0x600,  8) \
     ENTRY(CAN_BPS_VOLTAGE2       , 0x601,  8) \
     ENTRY(CAN_BPS_VOLTAGE3       , 0x602,  8) \
@@ -60,6 +61,7 @@
     ENTRY(TELEM_MOTOR_VELOCITY   ,  0x05,  8) \
     ENTRY(TELEM_MOTOR_HS_TEMP    ,  0x07,  8) \
     ENTRY(TELEM_MOTOR_DSP_TEMP   ,  0x09,  8) \
+    ENTRY(TELEM_EVDC_DRIVE       ,  0x0A,  8) \
     ENTRY(TELEM_BPS_VOLTAGE      ,  0x0B, 60) \
     ENTRY(TELEM_BPS_TEMPERATURE  ,  0x0D, 24) \
     ENTRY(TELEM_BPS_CURRENT      ,  0x11,  2) \
