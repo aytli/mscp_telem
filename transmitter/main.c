@@ -133,6 +133,35 @@ void isr_timer2(void)
     g_evdc_drive_page[6] = (int8)((evdc_velocity>> 8)&0xFF);
     g_evdc_drive_page[7] = (int8)((evdc_velocity>> 0)&0xFF);
     
+    g_mppt_page[0] = 0b10100000 | 0x02; // BVLR 1, OVT 0, NOC 1, UNDV 0
+    g_mppt_page[1] = 0x69; // Vin = 0x0269 (10 bits)
+    g_mppt_page[2] = 0x03;
+    g_mppt_page[3] = 0x55; // Iin = 0x0355
+    g_mppt_page[4] = 0x01;
+    g_mppt_page[5] = 0x73; // Vout = 0x0173
+    g_mppt_page[6] = 0x05;
+    g_mppt_page[7] = 0b10100000 | 0x02; // BVLR 1, OVT 0, NOC 1, UNDV 0
+    g_mppt_page[8] = 0x69; // Vin = 0x0269 (10 bits)
+    g_mppt_page[9] = 0x03;
+    g_mppt_page[10] = 0x55; // Iin = 0x0355
+    g_mppt_page[11] = 0x01;
+    g_mppt_page[12] = 0x73; // Vout = 0x0173
+    g_mppt_page[13] = 0x05;
+    g_mppt_page[14] = 0b10100000 | 0x02; // BVLR 1, OVT 0, NOC 1, UNDV 0
+    g_mppt_page[15] = 0x69; // Vin = 0x0269 (10 bits)
+    g_mppt_page[16] = 0x03;
+    g_mppt_page[17] = 0x55; // Iin = 0x0355
+    g_mppt_page[18] = 0x01;
+    g_mppt_page[19] = 0x73; // Vout = 0x0173
+    g_mppt_page[20] = 0x05;
+    g_mppt_page[21] = 0b10100000 | 0x02; // BVLR 1, OVT 0, NOC 1, UNDV 0
+    g_mppt_page[22] = 0x69; // Vin = 0x0269 (10 bits)
+    g_mppt_page[23] = 0x03;
+    g_mppt_page[24] = 0x55; // Iin = 0x0355
+    g_mppt_page[25] = 0x01;
+    g_mppt_page[26] = 0x73; // Vout = 0x0173
+    g_mppt_page[27] = 0x05;
+    
     if (ms >= SENDING_PERIOD_MS)
     {
         ms = 0; // Reset timer
@@ -282,13 +311,13 @@ void main()
                         memcpy(&g_mppt_page[0],in_data,rx_len);
                         break;
                     case CAN_MPPT2_ID:              // MPPT 2 data
-                        memcpy(&g_mppt_page[8],in_data,rx_len);
+                        memcpy(&g_mppt_page[7],in_data,rx_len);
                         break;
                     case CAN_MPPT3_ID:              // MPPT 3 data
-                        memcpy(&g_mppt_page[16],in_data,rx_len);
+                        memcpy(&g_mppt_page[14],in_data,rx_len);
                         break;
                     case CAN_MPPT4_ID:              // MPPT 4 data
-                        memcpy(&g_mppt_page[24],in_data,rx_len);
+                        memcpy(&g_mppt_page[21],in_data,rx_len);
                         break;
                     
                     // Invalid CAN id

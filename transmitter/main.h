@@ -48,10 +48,10 @@
     ENTRY(CAN_BPS_BALANCING      , 0x60C,  4) \
     ENTRY(CAN_BPS_STATUS         , 0x60D,  1) \
     ENTRY(CAN_PMS_DATA           , 0x60E,  8) \
-    ENTRY(CAN_MPPT1              , 0x771,  8) \
-    ENTRY(CAN_MPPT2              , 0x772,  8) \
-    ENTRY(CAN_MPPT3              , 0x773,  8) \
-    ENTRY(CAN_MPPT4              , 0x774,  8)
+    ENTRY(CAN_MPPT1              , 0x771,  7) \
+    ENTRY(CAN_MPPT2              , 0x772,  7) \
+    ENTRY(CAN_MPPT3              , 0x773,  7) \
+    ENTRY(CAN_MPPT4              , 0x774,  7)
 #define N_CAN_ID 23
 
 // X macro table of telemetry packets
@@ -68,7 +68,7 @@
     ENTRY(TELEM_BPS_BALANCING    ,  0x13,  4) \
     ENTRY(TELEM_BPS_STATUS       ,  0x17,  1) \
     ENTRY(TELEM_PMS_DATA         ,  0x19,  8) \
-    ENTRY(TELEM_MPPT             ,  0x1D, 32) \
+    ENTRY(TELEM_MPPT             ,  0x1D, 28) \
     ENTRY(TELEM_HEARTBEAT        ,  0xAA,  1)
 #define N_TELEM_ID 12
 
