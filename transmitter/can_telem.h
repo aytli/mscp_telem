@@ -53,8 +53,8 @@ enum {CAN_ID_TABLE(EXPAND_AS_CAN_LEN_ENUM)};
 #define EXPAND_AS_TELEM_LEN_ENUM(a,b,c,d) a##_LEN = c,
 #define EXPAND_AS_TELEM_ID_ARRAY(a,b,c,d)           b,
 #define EXPAND_AS_TELEM_LEN_ARRAY(a,b,c,d)          c,
-#define EXPAND_AS_PAGE_ARRAY(a,b,c,d)               d,
-#define EXPAND_AS_PAGE_DECLARATIONS(a,b,c,d) static int8 d[c];
+#define EXPAND_AS_TELEM_PAGE_ARRAY(a,b,c,d)         d,
+#define EXPAND_AS_TELEM_PAGE_DECLARATIONS(a,b,c,d) static int8 d[c];
 
 // X macro table of telemetry packets
 //        Packet name            ,    ID, Length, Page array
