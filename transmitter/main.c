@@ -1,4 +1,5 @@
 #include "main.h"
+#include "can_telem.h"
 #include "can18F4580_mscp.c"
 
 #define SENDING_PERIOD_MS 50
@@ -6,30 +7,6 @@
 
 #define TELEM_SEND_PACKET(i) \
     send_data(g_telem_id[i],g_telem_len[i],gp_telem_page[i]);
-
-// Creates a list of CAN packet IDs
-enum
-{
-    CAN_ID_TABLE(EXPAND_AS_CAN_ID_ENUM)
-};
-
-// Creates a list of telemetry packet IDs
-enum
-{
-    TELEM_ID_TABLE(EXPAND_AS_TELEM_ID_ENUM)
-};
-
-// Creates a list of telemetry packet lengths
-enum
-{
-    TELEM_ID_TABLE(EXPAND_AS_TELEM_LEN_ENUM)
-};
-
-// Creates a list of polling IDs
-enum
-{
-    CAN_POLLING_TABLE(EXPAND_AS_POLLING_ID_ENUM)
-};
 
 static int16 g_telem_id[N_TELEM_ID] =
 {
@@ -48,7 +25,10 @@ static int16 g_polling_id[N_CAN_POLLING_ID] =
 };
 
 TELEM_ID_TABLE(EXPAND_AS_PAGE_DECLARATIONS)
-static int * gp_telem_page[N_TELEM_ID] = {TELEM_ID_TABLE(EXPAND_AS_PAGE_ARRAY)};
+static int * gp_telem_page[N_TELEM_ID] =
+{
+    TELEM_ID_TABLE(EXPAND_AS_PAGE_ARRAY)
+};
 
 static int1 gb_poll;
 
