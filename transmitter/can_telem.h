@@ -1,3 +1,6 @@
+#ifndef CAN_TELEM_H
+#define CAN_TELEM_H
+
 // NOTE: The following tables are x-macros
 // X macro tutorial: http://www.embedded.com/design/programming-languages-and-tools/4403953/C-language-coding-errors-with-X-macros-Part-1
 
@@ -93,3 +96,5 @@ enum {TELEM_ID_TABLE(EXPAND_AS_TELEM_LEN_ENUM)};
 #define N_CAN_POLLING_ID 6
 
 enum {CAN_POLLING_TABLE(EXPAND_AS_POLLING_ID_ENUM)};
+
+#endif
