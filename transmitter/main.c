@@ -155,8 +155,8 @@ void main()
     struct rx_stat rxstat;
     int32 rx_id;
     int8 in_data[8];
-    int rx_len;
-    int empty[8] = {0,0,0,0,0,0,0,0};
+    int8 rx_len;
+    int8 empty[8] = {0,0,0,0,0,0,0,0};
     
     // Enable CAN receive interrupts
     clear_interrupt(INT_CANRX0);
@@ -180,28 +180,26 @@ void main()
     
     while(true)
     {
-        if (gb_can0_hit == true)
-        {
-            // Data in buffer 0, transfer contents
-            rx_id = g_can0_id;
-            rx_len = g_can0_len;
-            memcpy(&in_data[0],g_can0_data,8);
-        }
-        else if (gb_can1_hit == true)
-        {
-            // Data in buffer 1, transfer contents
-            rx_id = g_can1_id;
-            rx_len = g_can1_len;
-            memcpy(&in_data[0],g_can1_data,8);
-        }
-        else
-        {
-            // no can data, do nothing
-        }
-        
-        // If CAN data was received
+        // CAN data was received
         if (gb_can0_hit || gb_can1_hit)
         {
+            if (gb_can0_hit == true)
+            {
+                // Data is in buffer 0, transfer contents
+                rx_id = g_can0_id;
+                rx_len = g_can0_len;
+                &in_data[0] = &g_can0_data[0];
+                gb_can0_hit = false;
+            }
+            else if (gb_can1_hit == true)
+            {
+                // Data is in buffer 1, transfer contents
+                rx_id = g_can1_id;
+                rx_len = g_can1_len;
+                &in_data[0] = &g_can1_data[0];
+                gb_can1_hit = false;
+            }
+            
             // Check the ID of the received packet and update the corresponding page
             switch(rx_id)
             {
