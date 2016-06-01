@@ -4,9 +4,9 @@
 // NOTE: The following tables are x-macros
 // X macro tutorial: http://www.embedded.com/design/programming-languages-and-tools/4403953/C-language-coding-errors-with-X-macros-Part-1
 
-//////////////////////////////
-// CAN BUS DEFINES ///////////
-//////////////////////////////
+//////////////////////////
+// CAN BUS DEFINES ///////
+//////////////////////////
 
 #define EXPAND_AS_CAN_ID_ENUM(a,b,c)  a##_ID  = b,
 #define EXPAND_AS_CAN_LEN_ENUM(a,b,c) a##_LEN = c,
@@ -45,9 +45,9 @@ enum {CAN_ID_TABLE(EXPAND_AS_CAN_ID_ENUM)};
 enum {CAN_ID_TABLE(EXPAND_AS_CAN_LEN_ENUM)};
 
 
-//////////////////////////////
-// TELEMETRY BUS DEFINES /////
-//////////////////////////////
+//////////////////////////
+// TELEMETRY DEFINES /////
+//////////////////////////
 
 #define EXPAND_AS_TELEM_ID_ENUM(a,b,c,d)  a##_ID  = b,
 #define EXPAND_AS_TELEM_LEN_ENUM(a,b,c,d) a##_LEN = c,
@@ -77,9 +77,9 @@ enum {TELEM_ID_TABLE(EXPAND_AS_TELEM_ID_ENUM)};
 enum {TELEM_ID_TABLE(EXPAND_AS_TELEM_LEN_ENUM)};
 
 
-//////////////////////////////
-// POLLING DEFINES ///////////
-//////////////////////////////
+//////////////////////////
+// POLLING DEFINES ///////
+//////////////////////////
 
 #define EXPAND_AS_POLLING_ID_ENUM(a,b)  a##_ID  = b,
 #define EXPAND_AS_POLLING_ID_ARRAY(a,b)           b,
