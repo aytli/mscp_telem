@@ -15,5 +15,6 @@
 #use delay(clock = 20000000)
 #use rs232(baud = 115200, xmit = PIN_C6, rcv = PIN_C7)
 
-#define RX_PIN PIN_A0
+//#define RX_PIN PIN_A0
+#define RX_PIN PIN_C0
 #define TX_PIN PIN_A1

@@ -62,7 +62,7 @@ void send_data(int8 id, int len, int * data)
 }
 
 // INT_TIMER2 programmed to trigger every 1ms with a 20MHz clock
-// Telemetry data will be sent out with a period of SENDING_PERIOD_MS
+// Telemetry data will be sent out one page at a time with a period of SENDIN_PERIOD_MS
 #int_timer2
 void isr_timer2(void)
 {
@@ -107,6 +107,47 @@ void isr_timer4(void)
     }
 }
 
+// CAN receive buffer 1 interrupt
+int32 g_can1_id;
+int8  g_can1_data[8] = {0,0,0,0,0,0,0,0};
+int8  g_can1_len;
+int1  gb_can1_hit = false;
+#int_canrx0
+void isr_canrx0() { // CAN receive buffer 0 interrupt
+    struct rx_stat rxstat;
+    
+    output_toggle(RX_PIN);
+    if (can_getd(g_can1_id, g_can1_data, g_can1_len, rxstat))
+    {
+        gb_can1_hit = true;
+    }
+    else
+    {
+        gb_can1_hit = false;
+    }
+}
+
+// CAN receive buffer 2 interrupt
+int32 g_can2_id;
+int8  g_can2_data[8] = {0,0,0,0,0,0,0,0};
+int8  g_can2_len;
+int1  gb_can2_hit = false;
+#int_canrx1
+void isr_canrx1()
+{ // CAN receive buffer 1 interrupt
+    struct rx_stat rxstat;
+
+    output_toggle(RX_PIN);
+    if (can_getd(g_can2_id, g_can2_data, g_can2_len, rxstat))
+    {
+        gb_can2_hit = true;
+    }
+    else
+    {
+        gb_can2_hit = false;
+    }
+}
+
 void main()
 {
     int i;
@@ -114,6 +155,11 @@ void main()
     int32 rx_id;
     int8 in_data[8];
     int rx_len;
+    
+    clear_interrupt(INT_CANRX0);
+    enable_interrupts(INT_CANRX0);
+    clear_interrupt(INT_CANRX1);
+    enable_interrupts(INT_CANRX1);
     
     setup_timer_2(T2_DIV_BY_4,79,16); // Timer 2 set up to interrupt every 1ms with a 20MHz clock
     setup_timer_4(T4_DIV_BY_4,79,16); // Timer 4 set up to interrupt every 1ms with a 20MHz clock
@@ -130,101 +176,116 @@ void main()
     
     while(true)
     {
-        if (can_kbhit())
+        if (gb_can1_hit == true)
         {
-            if (can_getd(rx_id, in_data, rx_len, rxstat))
+            // Data in buffer 1, transfer contents
+            rx_id = g_can1_id;
+            rx_len = g_can1_len;
+            memcpy(&in_data[0],g_can1_data,8);
+        }
+        else if (gb_can2_hit == true)
+        {
+            // Data in buffer 2, transfer contents
+            rx_id = g_can2_id;
+            rx_len = g_can2_len;
+            memcpy(&in_data[0],g_can2_data,8);
+        }
+        else
+        {
+            // no can data, do nothing
+        }
+        
+        // If CAN data was received
+        if (gb_can1_hit || gb_can2_hit)
+        {
+            // Check the ID of the received packet and update the corresponding page
+            switch(rx_id)
             {
-                output_toggle(PIN_C0);  // CAN data received
+                // MOTOR DATA
+                case CAN_MOTOR_BUS_VI_ID:       // Motor voltage and current
+                    memcpy(&g_motor_bus_vi_page[0],in_data,rx_len);
+                    break;
+                case CAN_MOTOR_VELOCITY_ID:     // Motor velocity
+                    memcpy(&g_motor_velocity_page[0],in_data,rx_len);
+                    break;
+                case CAN_MOTOR_HS_TEMP_ID:  // Motor heatsink temperature
+                    memcpy(&g_motor_hs_temp_page[0],in_data,rx_len);
+                    break;
+                case CAN_MOTOR_DSP_TEMP_ID:  // Motor DSP temperature
+                    memcpy(&g_motor_dsp_temp_page[0],in_data,rx_len);
+                    break;
                 
-                // Check the ID of the received packet and update the corresponding page
-                switch(rx_id)
-                {
-                    // MOTOR DATA
-                    case CAN_MOTOR_BUS_VI_ID:       // Motor voltage and current
-                        memcpy(&g_motor_bus_vi_page[0],in_data,rx_len);
-                        break;
-                    case CAN_MOTOR_VELOCITY_ID:     // Motor velocity
-                        memcpy(&g_motor_velocity_page[0],in_data,rx_len);
-                        break;
-                    case CAN_MOTOR_HS_TEMP_ID:  // Motor heatsink temperature
-                        memcpy(&g_motor_hs_temp_page[0],in_data,rx_len);
-                        break;
-                    case CAN_MOTOR_DSP_TEMP_ID:  // Motor DSP temperature
-                        memcpy(&g_motor_dsp_temp_page[0],in_data,rx_len);
-                        break;
-                    
-                    // EV DRIVER CONTROLS DATA
-                    case CAN_EVDC_DRIVE_ID:
-                        memcpy(&g_evdc_drive_page[0],in_data,rx_len);
-                        break;
-                    
-                    // BPS DATA
-                    case CAN_BPS_VOLTAGE1_ID:       // BPS voltage 1
-                        memcpy(&g_bps_voltage_page[0],in_data,rx_len);
-                        break;
-                    case CAN_BPS_VOLTAGE2_ID:       // BPS voltage 2
-                        memcpy(&g_bps_voltage_page[8],in_data,rx_len);
-                       break;
-                    case CAN_BPS_VOLTAGE3_ID:       // BPS voltage 3
-                        memcpy(&g_bps_voltage_page[16],in_data,rx_len);
-                        break;
-                    case CAN_BPS_VOLTAGE4_ID:       // BPS voltage 4
-                        memcpy(&g_bps_voltage_page[24],in_data,rx_len);
-                        break;
-                    case CAN_BPS_VOLTAGE5_ID:       // BPS voltage 5
-                        memcpy(&g_bps_voltage_page[32],in_data,rx_len);
-                        break;
-                    case CAN_BPS_VOLTAGE6_ID:       // BPS voltage 6
-                        memcpy(&g_bps_voltage_page[40],in_data,rx_len);
-                        break;
-                    case CAN_BPS_VOLTAGE7_ID:       // BPS voltage 7
-                        memcpy(&g_bps_voltage_page[48],in_data,rx_len);
-                        break;
-                    case CAN_BPS_VOLTAGE8_ID:       // BPS voltage 8
-                        memcpy(&g_bps_voltage_page[56],in_data,rx_len);
-                        break;
-                    case CAN_BPS_TEMPERATURE1_ID:   // BPS temperature 1
-                        memcpy(&g_bps_temperature_page[0],in_data,rx_len);
-                        break;
-                    case CAN_BPS_TEMPERATURE2_ID:   // BPS temperature 2
-                        memcpy(&g_bps_temperature_page[8],in_data,rx_len);
-                        break;
-                    case CAN_BPS_TEMPERATURE3_ID:   // BPS temperature 3
-                        memcpy(&g_bps_temperature_page[16],in_data,rx_len);
-                        break;
-                    case CAN_BPS_CURRENT_ID:        // BPS current
-                        memcpy(&g_bps_current_page[0],in_data,rx_len);
-                        break;
-                    case CAN_BPS_BALANCING_ID:      // BPS balancing bits
-                        memcpy(&g_bps_balancing_page[0],in_data,rx_len);
-                        break;
-                    case CAN_BPS_STATUS_ID:         // BPS status
-                        memcpy(&g_bps_status_page[0],in_data,rx_len);
-                        break;
-                    
-                    // PMS DATA
-                    case CAN_PMS_DATA_ID:           // PMS data (aux voltage/temperature, DC/DC temperature)
-                        memcpy(&g_pms_page[0],in_data,rx_len);
-                        break;
-                    
-                    // MPPT DATA
-                    case CAN_MPPT1_ID:              // MPPT 1 data
-                        memcpy(&g_mppt_page[0],in_data,rx_len);
-                        break;
-                    case CAN_MPPT2_ID:              // MPPT 2 data
-                        memcpy(&g_mppt_page[7],in_data,rx_len);
-                        break;
-                    case CAN_MPPT3_ID:              // MPPT 3 data
-                        memcpy(&g_mppt_page[14],in_data,rx_len);
-                        break;
-                    case CAN_MPPT4_ID:              // MPPT 4 data
-                        memcpy(&g_mppt_page[21],in_data,rx_len);
-                        break;
-                    
-                    // Invalid CAN id
-                    default:
-                        break;
-                }
+                // EV DRIVER CONTROLS DATA
+                case CAN_EVDC_DRIVE_ID:
+                    memcpy(&g_evdc_drive_page[0],in_data,rx_len);
+                    break;
+                
+                // BPS DATA
+                case CAN_BPS_VOLTAGE1_ID:       // BPS voltage 1
+                    memcpy(&g_bps_voltage_page[0],in_data,rx_len);
+                    break;
+                case CAN_BPS_VOLTAGE2_ID:       // BPS voltage 2
+                    memcpy(&g_bps_voltage_page[8],in_data,rx_len);
+                   break;
+                case CAN_BPS_VOLTAGE3_ID:       // BPS voltage 3
+                    memcpy(&g_bps_voltage_page[16],in_data,rx_len);
+                    break;
+                case CAN_BPS_VOLTAGE4_ID:       // BPS voltage 4
+                    memcpy(&g_bps_voltage_page[24],in_data,rx_len);
+                    break;
+                case CAN_BPS_VOLTAGE5_ID:       // BPS voltage 5
+                    memcpy(&g_bps_voltage_page[32],in_data,rx_len);
+                    break;
+                case CAN_BPS_VOLTAGE6_ID:       // BPS voltage 6
+                    memcpy(&g_bps_voltage_page[40],in_data,rx_len);
+                    break;
+                case CAN_BPS_VOLTAGE7_ID:       // BPS voltage 7
+                    memcpy(&g_bps_voltage_page[48],in_data,rx_len);
+                    break;
+                case CAN_BPS_VOLTAGE8_ID:       // BPS voltage 8
+                    memcpy(&g_bps_voltage_page[56],in_data,rx_len);
+                    break;
+                case CAN_BPS_TEMPERATURE1_ID:   // BPS temperature 1
+                    memcpy(&g_bps_temperature_page[0],in_data,rx_len);
+                    break;
+                case CAN_BPS_TEMPERATURE2_ID:   // BPS temperature 2
+                    memcpy(&g_bps_temperature_page[8],in_data,rx_len);
+                    break;
+                case CAN_BPS_TEMPERATURE3_ID:   // BPS temperature 3
+                    memcpy(&g_bps_temperature_page[16],in_data,rx_len);
+                    break;
+                case CAN_BPS_CURRENT_ID:        // BPS current
+                    memcpy(&g_bps_current_page[0],in_data,rx_len);
+                    break;
+                case CAN_BPS_BALANCING_ID:      // BPS balancing bits
+                    memcpy(&g_bps_balancing_page[0],in_data,rx_len);
+                    break;
+                case CAN_BPS_STATUS_ID:         // BPS status
+                    memcpy(&g_bps_status_page[0],in_data,rx_len);
+                    break;
+                
+                // PMS DATA
+                case CAN_PMS_DATA_ID:           // PMS data (aux voltage/temperature, DC/DC temperature)
+                    memcpy(&g_pms_page[0],in_data,rx_len);
+                    break;
+                
+                // MPPT DATA
+                case CAN_MPPT1_ID:              // MPPT 1 data
+                    memcpy(&g_mppt_page[0],in_data,rx_len);
+                    break;
+                case CAN_MPPT2_ID:              // MPPT 2 data
+                    memcpy(&g_mppt_page[7],in_data,rx_len);
+                    break;
+                case CAN_MPPT3_ID:              // MPPT 3 data
+                    memcpy(&g_mppt_page[14],in_data,rx_len);
+                    break;
+                case CAN_MPPT4_ID:              // MPPT 4 data
+                    memcpy(&g_mppt_page[21],in_data,rx_len);
+                    break;
+                
+                // Invalid CAN id
+                default:
+                    break;
             }
         }
         
