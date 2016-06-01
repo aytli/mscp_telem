@@ -37,7 +37,15 @@ static int * gp_telem_page[N_TELEM_ID] =
     TELEM_ID_TABLE(EXPAND_AS_PAGE_ARRAY)
 };
 
-static int1 gb_poll;
+static int1  gb_poll;
+static int32 g_can0_id;
+static int8  g_can0_data[8];
+static int8  g_can0_len;
+static int1  gb_can0_hit = false;
+static int32 g_can1_id;
+static int8  g_can1_data[8];
+static int8  g_can1_len;
+static int1  gb_can1_hit = false;
 
 // Puts the xbee into bypass mode
 // Documentation: http://xbee-sdk-doc.readthedocs.io/en/stable/doc/tips_tricks/
@@ -107,16 +115,30 @@ void isr_timer4(void)
     }
 }
 
-// CAN receive buffer 1 interrupt
-int32 g_can1_id;
-int8  g_can1_data[8] = {0,0,0,0,0,0,0,0};
-int8  g_can1_len;
-int1  gb_can1_hit = false;
+// CAN receive buffer 0 interrupt
 #int_canrx0
-void isr_canrx0() { // CAN receive buffer 0 interrupt
+void isr_canrx0()
+{
     struct rx_stat rxstat;
-    
     output_toggle(RX_PIN);
+    
+    if (can_getd(g_can0_id, g_can0_data, g_can0_len, rxstat))
+    {
+        gb_can0_hit = true;
+    }
+    else
+    {
+        gb_can0_hit = false;
+    }
+}
+
+// CAN receive buffer 1 interrupt
+#int_canrx1
+void isr_canrx1()
+{
+    struct rx_stat rxstat;
+    output_toggle(RX_PIN);
+    
     if (can_getd(g_can1_id, g_can1_data, g_can1_len, rxstat))
     {
         gb_can1_hit = true;
@@ -127,27 +149,6 @@ void isr_canrx0() { // CAN receive buffer 0 interrupt
     }
 }
 
-// CAN receive buffer 2 interrupt
-int32 g_can2_id;
-int8  g_can2_data[8] = {0,0,0,0,0,0,0,0};
-int8  g_can2_len;
-int1  gb_can2_hit = false;
-#int_canrx1
-void isr_canrx1()
-{ // CAN receive buffer 1 interrupt
-    struct rx_stat rxstat;
-
-    output_toggle(RX_PIN);
-    if (can_getd(g_can2_id, g_can2_data, g_can2_len, rxstat))
-    {
-        gb_can2_hit = true;
-    }
-    else
-    {
-        gb_can2_hit = false;
-    }
-}
-
 void main()
 {
     int i;
@@ -155,12 +156,15 @@ void main()
     int32 rx_id;
     int8 in_data[8];
     int rx_len;
+    int empty[8] = {0,0,0,0,0,0,0,0};
     
+    // Enable CAN receive interrupts
     clear_interrupt(INT_CANRX0);
     enable_interrupts(INT_CANRX0);
     clear_interrupt(INT_CANRX1);
     enable_interrupts(INT_CANRX1);
     
+    // Setup timer interrupts
     setup_timer_2(T2_DIV_BY_4,79,16); // Timer 2 set up to interrupt every 1ms with a 20MHz clock
     setup_timer_4(T4_DIV_BY_4,79,16); // Timer 4 set up to interrupt every 1ms with a 20MHz clock
     enable_interrupts(INT_TIMER2);
@@ -169,26 +173,26 @@ void main()
     
     xbee_init();
     can_init();
+    
+    // Setup CAN gpio pins
     set_tris_b((*0xF93 & 0xFB ) | 0x08);   //b3 is out, b2 is in (default)
     delay_us(200);
     
-    int empty[8] = {0,0,0,0,0,0,0,0};
-    
     while(true)
     {
-        if (gb_can1_hit == true)
+        if (gb_can0_hit == true)
+        {
+            // Data in buffer 0, transfer contents
+            rx_id = g_can0_id;
+            rx_len = g_can0_len;
+            memcpy(&in_data[0],g_can0_data,8);
+        }
+        else if (gb_can1_hit == true)
         {
             // Data in buffer 1, transfer contents
             rx_id = g_can1_id;
             rx_len = g_can1_len;
             memcpy(&in_data[0],g_can1_data,8);
-        }
-        else if (gb_can2_hit == true)
-        {
-            // Data in buffer 2, transfer contents
-            rx_id = g_can2_id;
-            rx_len = g_can2_len;
-            memcpy(&in_data[0],g_can2_data,8);
         }
         else
         {
@@ -196,7 +200,7 @@ void main()
         }
         
         // If CAN data was received
-        if (gb_can1_hit || gb_can2_hit)
+        if (gb_can0_hit || gb_can1_hit)
         {
             // Check the ID of the received packet and update the corresponding page
             switch(rx_id)
