@@ -5,14 +5,21 @@
 #define SENDING_PERIOD_MS 50
 #define POLLING_PERIOD_MS 200
 
+// CAN bus defines
+#define TX_PRI 3
+#define TX_EXT 0
+#define TX_RTR 1
+
 #define TELEM_SEND_PACKET(i) \
     send_data(g_telem_id[i],g_telem_len[i],gp_telem_page[i]);
 
+// Creates an array of telemetry packet IDs
 static int16 g_telem_id[N_TELEM_ID] =
 {
     TELEM_ID_TABLE(EXPAND_AS_TELEM_ID_ARRAY)
 };
 
+// Creates an array of telemetry packet lengths
 static int16 g_telem_len[N_TELEM_ID] =
 {
     TELEM_ID_TABLE(EXPAND_AS_TELEM_LEN_ARRAY)
@@ -107,10 +114,6 @@ void main()
     int32 rx_id;
     int8 in_data[8];
     int rx_len;
-    
-    int tx_pri = 3;
-    int1 tx_ext = 0;
-    int1 tx_rtr = 1;
     
     setup_timer_2(T2_DIV_BY_4,79,16); // Timer 2 set up to interrupt every 1ms with a 20MHz clock
     setup_timer_4(T4_DIV_BY_4,79,16); // Timer 4 set up to interrupt every 1ms with a 20MHz clock
@@ -230,7 +233,7 @@ void main()
         if (can_tbe() && (gb_poll == true))
         {
             gb_poll = false;
-            can_putd(g_polling_id[i],0,8,tx_pri,tx_ext,tx_rtr);
+            can_putd(g_polling_id[i],0,8,TX_PRI,TX_EXT,TX_RTR);
             
             if (i >= (N_CAN_POLLING_ID-1))
             {
