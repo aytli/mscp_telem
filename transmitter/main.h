@@ -21,9 +21,9 @@
 // NOTE: CAN_ID_TABLE and TELEM_ID_TABLE are x macros
 // X macro tutorial: http://www.embedded.com/design/programming-languages-and-tools/4403953/C-language-coding-errors-with-X-macros-Part-1
 
-#define EXPAND_AS_ID_ENUM(a,b,c)  a##_ID  = b,
-#define EXPAND_AS_LEN_ENUM(a,b,c) a##_LEN = c,
-#define EXPAND_AS_ID_ARRAY(a,b)             b,
+#define EXPAND_AS_CAN_ID_ENUM(a,b,c)  a##_ID  = b,
+#define EXPAND_AS_CAN_LEN_ENUM(a,b,c) a##_LEN = c,
+#define EXPAND_AS_CAN_ID_ARRAY(a,b,c)           b,
 
 // X macro table of CANbus packets
 //        Packet name            ,    ID, Length
@@ -54,23 +54,34 @@
     ENTRY(CAN_MPPT4              , 0x774,  7)
 #define N_CAN_ID 23
 
+
+#define EXPAND_AS_TELEM_ID_ENUM(a,b,c,d)  a##_ID  = b,
+#define EXPAND_AS_TELEM_LEN_ENUM(a,b,c,d) a##_LEN = c,
+#define EXPAND_AS_TELEM_ID_ARRAY(a,b,c,d)           b,
+#define EXPAND_AS_TELEM_LEN_ARRAY(a,b,c,d)          c,
+#define EXPAND_AS_PAGE_ARRAY(a,b,c,d)               d,
+#define EXPAND_AS_PAGE_DECLARATIONS(a,b,c,d) static int8 d[c];
+
 // X macro table of telemetry packets
-//        Packet name            ,    ID, Length
-#define TELEM_ID_TABLE(ENTRY)                 \
-    ENTRY(TELEM_MOTOR_BUS_VI     ,  0x03,  8) \
-    ENTRY(TELEM_MOTOR_VELOCITY   ,  0x05,  8) \
-    ENTRY(TELEM_MOTOR_HS_TEMP    ,  0x07,  8) \
-    ENTRY(TELEM_MOTOR_DSP_TEMP   ,  0x09,  8) \
-    ENTRY(TELEM_EVDC_DRIVE       ,  0x0A,  8) \
-    ENTRY(TELEM_BPS_VOLTAGE      ,  0x0B, 60) \
-    ENTRY(TELEM_BPS_TEMPERATURE  ,  0x0D, 24) \
-    ENTRY(TELEM_BPS_CURRENT      ,  0x11,  2) \
-    ENTRY(TELEM_BPS_BALANCING    ,  0x13,  4) \
-    ENTRY(TELEM_BPS_STATUS       ,  0x17,  1) \
-    ENTRY(TELEM_PMS_DATA         ,  0x19,  8) \
-    ENTRY(TELEM_MPPT             ,  0x1D, 28) \
-    ENTRY(TELEM_HEARTBEAT        ,  0xAA,  1)
+//        Packet name            ,    ID, Length, Page array
+#define TELEM_ID_TABLE(ENTRY)                                         \
+    ENTRY(TELEM_MOTOR_BUS_VI     ,  0x03,  8, g_motor_bus_vi_page)    \
+    ENTRY(TELEM_MOTOR_VELOCITY   ,  0x05,  8, g_motor_velocity_page)  \
+    ENTRY(TELEM_MOTOR_HS_TEMP    ,  0x07,  8, g_motor_hs_temp_page)   \
+    ENTRY(TELEM_MOTOR_DSP_TEMP   ,  0x09,  8, g_motor_dsp_temp_page)  \
+    ENTRY(TELEM_EVDC_DRIVE       ,  0x0A,  8, g_evdc_drive_page)      \
+    ENTRY(TELEM_BPS_VOLTAGE      ,  0x0B, 60, g_bps_voltage_page)     \
+    ENTRY(TELEM_BPS_TEMPERATURE  ,  0x0D, 24, g_bps_temperature_page) \
+    ENTRY(TELEM_BPS_CURRENT      ,  0x11,  2, g_bps_current_page)     \
+    ENTRY(TELEM_BPS_BALANCING    ,  0x13,  4, g_bps_balancing_page)   \
+    ENTRY(TELEM_BPS_STATUS       ,  0x17,  1, g_bps_status_page)      \
+    ENTRY(TELEM_PMS_DATA         ,  0x19,  8, g_pms_page)             \
+    ENTRY(TELEM_MPPT             ,  0x1D, 28, g_mppt_page)
 #define N_TELEM_ID 12
+
+
+#define EXPAND_AS_POLLING_ID_ENUM(a,b)  a##_ID  = b,
+#define EXPAND_AS_POLLING_ID_ARRAY(a,b)           b,
 
 // X macro table of CAN bus destinations to be polled
 //        Packet name            ,    ID

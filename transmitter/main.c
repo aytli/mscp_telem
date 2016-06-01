@@ -1,56 +1,55 @@
 #include "main.h"
 #include "can18F4580_mscp.c"
 
-#define SENDING_PERIOD_MS 100
-#define POLLING_PERIOD_MS  50
+#define SENDING_PERIOD_MS 50
+#define POLLING_PERIOD_MS 200
+
+#define TELEM_SEND_PACKET(i) \
+    send_data(g_telem_id[i],g_telem_len[i],gp_telem_page[i]);
 
 // Creates a list of CAN packet IDs
 enum
 {
-    CAN_ID_TABLE(EXPAND_AS_ID_ENUM)
+    CAN_ID_TABLE(EXPAND_AS_CAN_ID_ENUM)
 };
 
 // Creates a list of telemetry packet IDs
 enum
 {
-    TELEM_ID_TABLE(EXPAND_AS_ID_ENUM)
+    TELEM_ID_TABLE(EXPAND_AS_TELEM_ID_ENUM)
 };
 
 // Creates a list of telemetry packet lengths
 enum
 {
-    TELEM_ID_TABLE(EXPAND_AS_LEN_ENUM)
+    TELEM_ID_TABLE(EXPAND_AS_TELEM_LEN_ENUM)
 };
 
 // Creates a list of polling IDs
 enum
 {
-    CAN_POLLING_TABLE(EXPAND_AS_ID_ENUM)
+    CAN_POLLING_TABLE(EXPAND_AS_POLLING_ID_ENUM)
+};
+
+static int16 g_telem_id[N_TELEM_ID] =
+{
+    TELEM_ID_TABLE(EXPAND_AS_TELEM_ID_ARRAY)
+};
+
+static int16 g_telem_len[N_TELEM_ID] =
+{
+    TELEM_ID_TABLE(EXPAND_AS_TELEM_LEN_ARRAY)
 };
 
 // Creates an array of polling IDs
 static int16 g_polling_id[N_CAN_POLLING_ID] =
 {
-    POLLING_MOTOR_HS_TEMP_ID,
-    POLLING_MOTOR_DSP_TEMP_ID,
-    POLLING_MPPT1_ID,
-    POLLING_MPPT2_ID,
-    POLLING_MPPT3_ID,
-    POLLING_MPPT4_ID
+    CAN_POLLING_TABLE(EXPAND_AS_POLLING_ID_ARRAY)
 };
 
-static int8 g_motor_bus_vi_page[TELEM_MOTOR_BUS_VI_LEN];
-static int8 g_motor_velocity_page[TELEM_MOTOR_VELOCITY_LEN];
-static int8 g_motor_hs_temp_page[TELEM_MOTOR_HS_TEMP_LEN];
-static int8 g_motor_dsp_temp_page[TELEM_MOTOR_DSP_TEMP_LEN];
-static int8 g_evdc_drive_page[TELEM_EVDC_DRIVE_LEN];
-static int8 g_bps_voltage_page[TELEM_BPS_VOLTAGE_LEN];
-static int8 g_bps_temperature_page[TELEM_BPS_TEMPERATURE_LEN];
-static int8 g_bps_current_page[TELEM_BPS_CURRENT_LEN];
-static int8 g_bps_balancing_page[TELEM_BPS_BALANCING_LEN];
-static int8 g_bps_status_page[TELEM_BPS_STATUS_LEN];
-static int8 g_pms_page[TELEM_PMS_DATA_LEN];
-static int8 g_mppt_page[TELEM_MPPT_LEN];
+TELEM_ID_TABLE(EXPAND_AS_PAGE_DECLARATIONS)
+static int * gp_telem_page[N_TELEM_ID] = {TELEM_ID_TABLE(EXPAND_AS_PAGE_ARRAY)};
+
 static int1 gb_poll;
 
 // Puts the xbee into bypass mode
@@ -81,105 +80,22 @@ void send_data(int8 id, int len, int * data)
 void isr_timer2(void)
 {
     static int16 ms;
-    static int1 b_heartbeat = 0;
-    
-    static int32 motor_current  = 0x41a00000; // 20.0A
-    static int32 motor_voltage  = 0x42c80000; // 100.0V
-    g_motor_bus_vi_page[0] = (int8)((motor_current>>24)&0xFF);
-    g_motor_bus_vi_page[1] = (int8)((motor_current>>16)&0xFF);
-    g_motor_bus_vi_page[2] = (int8)((motor_current>> 8)&0xFF);
-    g_motor_bus_vi_page[3] = (int8)((motor_current>> 0)&0xFF);
-    g_motor_bus_vi_page[4] = (int8)((motor_voltage>>24)&0xFF);
-    g_motor_bus_vi_page[5] = (int8)((motor_voltage>>16)&0xFF);
-    g_motor_bus_vi_page[6] = (int8)((motor_voltage>> 8)&0xFF);
-    g_motor_bus_vi_page[7] = (int8)((motor_voltage>> 0)&0xFF);
-    
-    static int32 motor_velocity = 0x41600000; // 14 m/s
-    static int32 motor_rpm      = 0x447a0000; // 1000 rpm
-    g_motor_velocity_page[0] = (int8)((motor_velocity>>24)&0xFF);
-    g_motor_velocity_page[1] = (int8)((motor_velocity>>16)&0xFF);
-    g_motor_velocity_page[2] = (int8)((motor_velocity>> 8)&0xFF);
-    g_motor_velocity_page[3] = (int8)((motor_velocity>> 0)&0xFF);
-    g_motor_velocity_page[4] = (int8)((motor_rpm>>24)&0xFF);
-    g_motor_velocity_page[5] = (int8)((motor_rpm>>16)&0xFF);
-    g_motor_velocity_page[6] = (int8)((motor_rpm>> 8)&0xFF);
-    g_motor_velocity_page[7] = (int8)((motor_rpm>> 0)&0xFF);
-    
-    static int32 motor_hs_temp  = 0x42480000; // 50C
-    static int32 motor_int_temp = 0x42700000; // 60C
-    g_motor_hs_temp_page[0] = (int8)((motor_hs_temp>>24)&0xFF);
-    g_motor_hs_temp_page[1] = (int8)((motor_hs_temp>>16)&0xFF);
-    g_motor_hs_temp_page[2] = (int8)((motor_hs_temp>> 8)&0xFF);
-    g_motor_hs_temp_page[3] = (int8)((motor_hs_temp>> 0)&0xFF);
-    g_motor_hs_temp_page[4] = (int8)((motor_int_temp>>24)&0xFF);
-    g_motor_hs_temp_page[5] = (int8)((motor_int_temp>>16)&0xFF);
-    g_motor_hs_temp_page[6] = (int8)((motor_int_temp>> 8)&0xFF);
-    g_motor_hs_temp_page[7] = (int8)((motor_int_temp>> 0)&0xFF);
-    
-    static int32 motor_dsp_temp  = 0x42200000; // 40C
-    g_motor_dsp_temp_page[4] = (int8)((motor_dsp_temp>>24)&0xFF);
-    g_motor_dsp_temp_page[5] = (int8)((motor_dsp_temp>>16)&0xFF);
-    g_motor_dsp_temp_page[6] = (int8)((motor_dsp_temp>> 8)&0xFF);
-    g_motor_dsp_temp_page[7] = (int8)((motor_dsp_temp>> 0)&0xFF);
-    
-    static int32 evdc_current    = 0x42200000; // 40% of max current
-    static int32 evdc_velocity   = 0x447a0000; // 1000 rpm
-    g_evdc_drive_page[0] = (int8)((evdc_current>>24)&0xFF);
-    g_evdc_drive_page[1] = (int8)((evdc_current>>16)&0xFF);
-    g_evdc_drive_page[2] = (int8)((evdc_current>> 8)&0xFF);
-    g_evdc_drive_page[3] = (int8)((evdc_current>> 0)&0xFF);
-    g_evdc_drive_page[4] = (int8)((evdc_velocity>>24)&0xFF);
-    g_evdc_drive_page[5] = (int8)((evdc_velocity>>16)&0xFF);
-    g_evdc_drive_page[6] = (int8)((evdc_velocity>> 8)&0xFF);
-    g_evdc_drive_page[7] = (int8)((evdc_velocity>> 0)&0xFF);
-    
-    g_mppt_page[0] = 0b10100000 | 0x02; // BVLR 1, OVT 0, NOC 1, UNDV 0
-    g_mppt_page[1] = 0x69; // Vin = 0x0269 (10 bits)
-    g_mppt_page[2] = 0x03;
-    g_mppt_page[3] = 0x55; // Iin = 0x0355
-    g_mppt_page[4] = 0x01;
-    g_mppt_page[5] = 0x73; // Vout = 0x0173
-    g_mppt_page[6] = 0x05;
-    g_mppt_page[7] = 0b10100000 | 0x02; // BVLR 1, OVT 0, NOC 1, UNDV 0
-    g_mppt_page[8] = 0x69; // Vin = 0x0269 (10 bits)
-    g_mppt_page[9] = 0x03;
-    g_mppt_page[10] = 0x55; // Iin = 0x0355
-    g_mppt_page[11] = 0x01;
-    g_mppt_page[12] = 0x73; // Vout = 0x0173
-    g_mppt_page[13] = 0x05;
-    g_mppt_page[14] = 0b10100000 | 0x02; // BVLR 1, OVT 0, NOC 1, UNDV 0
-    g_mppt_page[15] = 0x69; // Vin = 0x0269 (10 bits)
-    g_mppt_page[16] = 0x03;
-    g_mppt_page[17] = 0x55; // Iin = 0x0355
-    g_mppt_page[18] = 0x01;
-    g_mppt_page[19] = 0x73; // Vout = 0x0173
-    g_mppt_page[20] = 0x05;
-    g_mppt_page[21] = 0b10100000 | 0x02; // BVLR 1, OVT 0, NOC 1, UNDV 0
-    g_mppt_page[22] = 0x69; // Vin = 0x0269 (10 bits)
-    g_mppt_page[23] = 0x03;
-    g_mppt_page[24] = 0x55; // Iin = 0x0355
-    g_mppt_page[25] = 0x01;
-    g_mppt_page[26] = 0x73; // Vout = 0x0173
-    g_mppt_page[27] = 0x05;
+    static int8 i = 0;
     
     if (ms >= SENDING_PERIOD_MS)
     {
         ms = 0; // Reset timer
         output_toggle(TX_PIN);
-        b_heartbeat = !b_heartbeat;
-        send_data(TELEM_MOTOR_BUS_VI_ID     , TELEM_MOTOR_BUS_VI_LEN     , g_motor_bus_vi_page);
-        send_data(TELEM_MOTOR_VELOCITY_ID   , TELEM_MOTOR_VELOCITY_LEN   , g_motor_velocity_page);
-        send_data(TELEM_MOTOR_HS_TEMP_ID    , TELEM_MOTOR_HS_TEMP_LEN    , g_motor_hs_temp_page);
-        send_data(TELEM_MOTOR_DSP_TEMP_ID   , TELEM_MOTOR_DSP_TEMP_LEN   , g_motor_dsp_temp_page);
-        send_data(TELEM_EVDC_DRIVE_ID       , TELEM_EVDC_DRIVE_LEN       , g_evdc_drive_page);
-        send_data(TELEM_BPS_VOLTAGE_ID      , TELEM_BPS_VOLTAGE_LEN      , g_bps_voltage_page);
-        send_data(TELEM_BPS_TEMPERATURE_ID  , TELEM_BPS_TEMPERATURE_LEN  , g_bps_temperature_page);
-        send_data(TELEM_BPS_CURRENT_ID      , TELEM_BPS_CURRENT_LEN      , g_bps_current_page);
-        send_data(TELEM_BPS_BALANCING_ID    , TELEM_BPS_BALANCING_LEN    , g_bps_balancing_page);
-        send_data(TELEM_BPS_STATUS_ID       , TELEM_BPS_STATUS_LEN       , g_bps_status_page);
-        send_data(TELEM_PMS_DATA_ID         , TELEM_PMS_DATA_LEN         , g_pms_page);
-        send_data(TELEM_MPPT_ID             , TELEM_MPPT_LEN             , g_mppt_page);
-        send_data(TELEM_HEARTBEAT_ID        , TELEM_HEARTBEAT_LEN        , b_heartbeat);
+        TELEM_SEND_PACKET(i);
+        
+        if (i >= (N_TELEM_ID-1))
+        {
+            i = 0;
+        }
+        else
+        {
+            i++;
+        }
     }
     else
     {
@@ -195,8 +111,8 @@ void isr_timer4(void)
     static int16 ms;
     if (ms >= POLLING_PERIOD_MS)
     {
-        ms = 0;                 // Reset timer
-        gb_poll = true;        // Raise polling request flag
+        ms = 0;         // Reset timer
+        gb_poll = true; // Raise polling request flag
     }
     else
     {
@@ -226,6 +142,8 @@ void main()
     can_init();
     set_tris_b((*0xF93 & 0xFB ) | 0x08);   //b3 is out, b2 is in (default)
     delay_us(200);
+    
+    int empty[8] = {0,0,0,0,0,0,0,0};
     
     while(true)
     {
