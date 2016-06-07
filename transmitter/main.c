@@ -188,7 +188,8 @@ void main()
                 // Data is in buffer 0, transfer contents
                 rx_id = g_can0_id;
                 rx_len = g_can0_len;
-                &in_data[0] = &g_can0_data[0];
+                //&in_data[0] = &g_can0_data[0];
+                memcpy(in_data,g_can0_data,8);
                 gb_can0_hit = false;
             }
             else if (gb_can1_hit == true)
@@ -196,7 +197,8 @@ void main()
                 // Data is in buffer 1, transfer contents
                 rx_id = g_can1_id;
                 rx_len = g_can1_len;
-                &in_data[0] = &g_can1_data[0];
+                //&in_data[0] = &g_can1_data[0];
+                memcpy(in_data,g_can1_data,8);
                 gb_can1_hit = false;
             }
             
@@ -293,7 +295,7 @@ void main()
         
         // Periodically poll for data on the CAN bus
         // Polls one destination at a time, when the gb_poll flag is set
-        if (can_tbe() && (gb_poll == true))
+        /*if (can_tbe() && (gb_poll == true))
         {
             gb_poll = false;
             can_putd(g_polling_id[i],0,8,TX_PRI,TX_EXT,TX_RTR);
@@ -306,6 +308,6 @@ void main()
             {
                 i++;
             }
-        }
+        }*/
     }
 }
