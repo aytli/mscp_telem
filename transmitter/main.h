@@ -17,3 +17,12 @@
 
 #define RX_PIN PIN_C2
 #define TX_PIN PIN_C3
+
+// State machine states
+typedef enum
+{
+    IDLE,
+    DATA_RECEIVED,
+    DATA_POLLING,
+    N_STATES
+} telem_state;
