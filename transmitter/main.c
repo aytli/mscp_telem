@@ -31,6 +31,7 @@ static int16 g_polling_id[N_CAN_POLLING_ID] =
     CAN_POLLING_TABLE(EXPAND_AS_POLLING_ID_ARRAY)
 };
 
+// Declares and creates an array of telemetry pages
 TELEM_ID_TABLE(EXPAND_AS_TELEM_PAGE_DECLARATIONS)
 static int * gp_telem_page[N_TELEM_ID] =
 {
@@ -157,7 +158,7 @@ void idle_state(void)
 {
     if (gb_can0_hit == true)
     {
-        // Data is in buffer 0, transfer contents
+        // Data received in buffer 0, transfer contents
         g_rx_id = g_can0_id;
         g_rx_len = g_can0_len;
         memcpy(g_rx_data,g_can0_data,8);
@@ -166,7 +167,7 @@ void idle_state(void)
     }
     else if (gb_can1_hit == true)
     {
-        // Data is in buffer 1, transfer contents
+        // Data received in buffer 1, transfer contents
         g_rx_id = g_can1_id;
         g_rx_len = g_can1_len;
         memcpy(g_rx_data,g_can1_data,8);
@@ -283,7 +284,7 @@ void data_received_state(void)
 
 void data_polling_state(void)
 {
-    static int i;
+    static int i = 0;
     
     gb_poll = false;
     can_putd(g_polling_id[i],0,8,TX_PRI,TX_EXT,TX_RTR);
