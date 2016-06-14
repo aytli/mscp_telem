@@ -67,7 +67,6 @@ void send_data(int8 id, int len, int * data)
 {
     int i;
     putc(id);
-    putc(len);
     for (i = 0 ; i < len ; i++)
     {
         putc(*(data+i));
