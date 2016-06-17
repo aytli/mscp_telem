@@ -38,19 +38,19 @@ static int * gp_telem_page[N_TELEM_ID] =
     TELEM_ID_TABLE(EXPAND_AS_TELEM_PAGE_ARRAY)
 };
 
-static int1        gb_poll;
-static int32       g_can0_id;
-static int8        g_can0_data[8];
-static int8        g_can0_len;
-static int1        gb_can0_hit = false;
-static int32       g_can1_id;
-static int8        g_can1_data[8];
-static int8        g_can1_len;
-static int1        gb_can1_hit = false;
-static int32       g_rx_id;
-static int8        g_rx_len;
-static int8        g_rx_data[8];
-static telem_state g_state;
+static int1          gb_poll;
+static int32         g_can0_id;
+static int8          g_can0_data[8];
+static int8          g_can0_len;
+static int1          gb_can0_hit = false;
+static int32         g_can1_id;
+static int8          g_can1_data[8];
+static int8          g_can1_len;
+static int1          gb_can1_hit = false;
+static int32         g_rx_id;
+static int8          g_rx_len;
+static int8          g_rx_data[8];
+static telem_state_t g_state;
 
 // Puts the xbee into bypass mode
 // Documentation: http://xbee-sdk-doc.readthedocs.io/en/stable/doc/tips_tricks/

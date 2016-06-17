@@ -25,4 +25,4 @@ typedef enum
     DATA_RECEIVED,
     DATA_POLLING,
     N_STATES
-} telem_state;
+} telem_state_t;
