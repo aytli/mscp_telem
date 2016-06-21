@@ -57,6 +57,10 @@ static telem_state_t g_state;
 void xbee_init(void)
 {
     delay_ms(100);
+    output_low(XBEE_PIN);
+    delay_ms(1);
+    output_high(XBEE_PIN);
+    delay_ms(1);
     putc('b');
     putc('b');
     delay_ms(100);
