@@ -41,3 +41,6 @@
 
 # Debug files
 *.dSYM/
+
+# Labview files
+*.aliases
