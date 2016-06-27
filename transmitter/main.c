@@ -38,6 +38,7 @@ static int * gp_telem_page[N_TELEM_ID] =
     TELEM_ID_TABLE(EXPAND_AS_TELEM_PAGE_ARRAY)
 };
 
+static int1          gb_send;
 static int1          gb_poll;
 static int32         g_can0_id;
 static int8          g_can0_data[8];
@@ -83,22 +84,10 @@ void send_data(int8 id, int len, int * data)
 void isr_timer2(void)
 {
     static int16 ms;
-    static int8 i = 0;
-    
     if (ms >= SENDING_PERIOD_MS)
     {
-        ms = 0; // Reset timer
-        output_toggle(TX_PIN);
-        TELEM_SEND_PACKET(i);
-        
-        if (i >= (N_TELEM_ID-1))
-        {
-            i = 0;
-        }
-        else
-        {
-            i++;
-        }
+        ms = 0;         // Reset timer
+        gb_send = true; // Raise data sending flag
     }
     else
     {
@@ -176,6 +165,11 @@ void idle_state(void)
         memcpy(g_rx_data,g_can1_data,8);
         gb_can1_hit = false;
         g_state = DATA_RECEIVED;
+    }
+    else if (gb_send == true)
+    {
+        // Ready to send data
+        g_state = DATA_SENDING;
     }
     else if (can_tbe() && (gb_poll == true))
     {
@@ -285,6 +279,26 @@ void data_received_state(void)
     g_state = IDLE;
 }
 
+void data_sending_state(void)
+{
+    static int i = 0;
+    
+    gb_send = false;
+    output_toggle(TX_PIN);
+    TELEM_SEND_PACKET(i);
+    
+    if (i >= (N_TELEM_ID-1))
+    {
+        i = 0;
+    }
+    else
+    {
+        i++;
+    }
+    
+    g_state = IDLE;
+}
+
 void data_polling_state(void)
 {
     static int i = 0;
@@ -339,6 +353,9 @@ void main()
                 break;
             case DATA_RECEIVED:
                 data_received_state();
+                break;
+            case DATA_SENDING:
+                data_sending_state();
                 break;
             case DATA_POLLING:
                 data_polling_state();

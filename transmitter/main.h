@@ -24,6 +24,7 @@ typedef enum
 {
     IDLE,
     DATA_RECEIVED,
+    DATA_SENDING,
     DATA_POLLING,
     N_STATES
 } telem_state_t;
