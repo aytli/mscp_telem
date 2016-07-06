@@ -241,14 +241,8 @@ void data_received_state(void)
         case CAN_BPS_TEMPERATURE3_ID:   // BPS temperature 3
             memcpy(&g_bps_temperature_page[16],g_rx_data,g_rx_len);
             break;
-        case CAN_BPS_CURRENT_ID:        // BPS current
-            memcpy(&g_bps_current_page[0],g_rx_data,g_rx_len);
-            break;
-        case CAN_BPS_BALANCING_ID:      // BPS balancing bits
-            memcpy(&g_bps_balancing_page[0],g_rx_data,g_rx_len);
-            break;
-        case CAN_BPS_STATUS_ID:         // BPS status
-            memcpy(&g_bps_status_page[0],g_rx_data,g_rx_len);
+        case CAN_BPS_CUR_BAL_STAT_ID:   // BPS current, balancing bits, status
+            memcpy(&g_bps_cur_bal_stat_page[0],g_rx_data,g_rx_len);
             break;
         
         // PMS DATA
