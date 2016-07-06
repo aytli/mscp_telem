@@ -2,6 +2,7 @@
 #include "can_telem.h"
 #include "can18F4580_mscp.c"
 
+// Timing periods
 #define SENDING_PERIOD_MS 50
 #define POLLING_PERIOD_MS 200
 
@@ -10,6 +11,7 @@
 #define TX_EXT 0
 #define TX_RTR 1
 
+// Sends a packet of telemetry data to the radio module over uart
 #define TELEM_SEND_PACKET(i) \
     send_data(g_telem_id[i],g_telem_len[i],gp_telem_page[i]);
 
@@ -53,18 +55,18 @@ static int8          g_rx_len;
 static int8          g_rx_data[8];
 static telem_state_t g_state;
 
-// Puts the xbee into bypass mode
+// Puts the xbee into bypass mode, toggles Xbee reset pins
 // Documentation: http://xbee-sdk-doc.readthedocs.io/en/stable/doc/tips_tricks/
 void xbee_init(void)
 {
-    delay_ms(100);
+    delay_ms(10);
     output_low(XBEE_PIN);
     delay_ms(1);
     output_high(XBEE_PIN);
     delay_ms(1);
     putc('b');
     putc('b');
-    delay_ms(100);
+    delay_ms(10);
 }
 
 // Sends a page of data over the radio module
