@@ -1,3 +1,10 @@
+// Spitfire telemetry code
+// Author: Andy Li
+// Copyright 2016, McMaster Solar Car Project
+// Reads vehicle information over CAN bus and periodically sends it over a radio
+// module to a receiving PC
+
+// Includes
 #include "main.h"
 #include "can_telem.h"
 #include "can18F4580_mscp.c"
