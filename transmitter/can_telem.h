@@ -32,7 +32,7 @@
     ENTRY(CAN_BPS_TEMPERATURE2   , 0x609,  8) \
     ENTRY(CAN_BPS_TEMPERATURE3   , 0x60A,  8) \
     ENTRY(CAN_BPS_CUR_BAL_STAT   , 0x60B,  7) \
-    ENTRY(CAN_PMS_DATA           , 0x60E,  7) \
+    ENTRY(CAN_PMS_DATA           , 0x60E,  8) \
     ENTRY(CAN_MPPT1              , 0x771,  7) \
     ENTRY(CAN_MPPT2              , 0x772,  7) \
     ENTRY(CAN_MPPT3              , 0x773,  7) \
@@ -65,7 +65,7 @@ enum {CAN_ID_TABLE(EXPAND_AS_CAN_LEN_ENUM)};
     ENTRY(TELEM_BPS_VOLTAGE      ,  0x0B, 60, g_bps_voltage_page)      \
     ENTRY(TELEM_BPS_TEMPERATURE  ,  0x0D, 24, g_bps_temperature_page)  \
     ENTRY(TELEM_BPS_CUR_BAL_STAT ,  0x11,  7, g_bps_cur_bal_stat_page) \
-    ENTRY(TELEM_PMS_DATA         ,  0x19,  7, g_pms_page)              \
+    ENTRY(TELEM_PMS_DATA         ,  0x19,  8, g_pms_page)              \
     ENTRY(TELEM_MPPT             ,  0x1D, 28, g_mppt_page)
 #define N_TELEM_ID 10
 
