@@ -198,6 +198,9 @@ void data_received_state(void)
     switch(g_rx_id)
     {
         // MOTOR DATA
+        case CAN_MOTOR_STATUS_ID:       // Motor status bits
+            memcpy(&g_motor_status_page[0],g_rx_data,g_rx_len);
+            break;
         case CAN_MOTOR_BUS_VI_ID:       // Motor voltage and current
             memcpy(&g_motor_bus_vi_page[0],g_rx_data,g_rx_len);
             break;

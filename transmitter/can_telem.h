@@ -15,6 +15,7 @@
 // X macro table of CANbus packets
 //        Packet name            ,    ID, Length
 #define CAN_ID_TABLE(ENTRY)                   \
+    ENTRY(CAN_MOTOR_STATUS       , 0x401,  8) \
     ENTRY(CAN_MOTOR_BUS_VI       , 0x402,  8) \
     ENTRY(CAN_MOTOR_VELOCITY     , 0x403,  8) \
     ENTRY(CAN_MOTOR_HS_TEMP      , 0x40B,  8) \
@@ -23,7 +24,7 @@
     ENTRY(CAN_BPS_VOLTAGE1       , 0x600,  8) \
     ENTRY(CAN_BPS_VOLTAGE2       , 0x601,  8) \
     ENTRY(CAN_BPS_VOLTAGE3       , 0x602,  8) \
-    ENTRY(CAN_BPS_VOLTAGE4       , 0x603,  8) \
+    ENTRY(CAN_BPS_VOLTAGE4       , 0x603,  6) \
     ENTRY(CAN_BPS_TEMPERATURE1   , 0x608,  8) \
     ENTRY(CAN_BPS_TEMPERATURE2   , 0x609,  8) \
     ENTRY(CAN_BPS_TEMPERATURE3   , 0x60A,  8) \
@@ -53,6 +54,7 @@ enum {CAN_ID_TABLE(EXPAND_AS_CAN_LEN_ENUM)};
 // X macro table of telemetry packets
 //        Packet name            ,    ID, Length, Page array
 #define TELEM_ID_TABLE(ENTRY)                                          \
+    ENTRY(TELEM_MOTOR_STATUS     ,  0x02,  8, g_motor_status_page)     \
     ENTRY(TELEM_MOTOR_BUS_VI     ,  0x03,  8, g_motor_bus_vi_page)     \
     ENTRY(TELEM_MOTOR_VELOCITY   ,  0x05,  8, g_motor_velocity_page)   \
     ENTRY(TELEM_MOTOR_HS_TEMP    ,  0x07,  8, g_motor_hs_temp_page)    \
@@ -63,7 +65,7 @@ enum {CAN_ID_TABLE(EXPAND_AS_CAN_LEN_ENUM)};
     ENTRY(TELEM_BPS_CUR_BAL_STAT ,  0x11,  8, g_bps_cur_bal_stat_page) \
     ENTRY(TELEM_PMS_DATA         ,  0x19,  8, g_pms_page)              \
     ENTRY(TELEM_MPPT             ,  0x1D, 28, g_mppt_page)
-#define N_TELEM_ID 10
+#define N_TELEM_ID 11
 
 enum {TELEM_ID_TABLE(EXPAND_AS_TELEM_ID_ENUM)};
 enum {TELEM_ID_TABLE(EXPAND_AS_TELEM_LEN_ENUM)};
