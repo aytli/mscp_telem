@@ -24,10 +24,6 @@
     ENTRY(CAN_BPS_VOLTAGE2       , 0x601,  8) \
     ENTRY(CAN_BPS_VOLTAGE3       , 0x602,  8) \
     ENTRY(CAN_BPS_VOLTAGE4       , 0x603,  8) \
-    ENTRY(CAN_BPS_VOLTAGE5       , 0x604,  8) \
-    ENTRY(CAN_BPS_VOLTAGE6       , 0x605,  8) \
-    ENTRY(CAN_BPS_VOLTAGE7       , 0x606,  8) \
-    ENTRY(CAN_BPS_VOLTAGE8       , 0x607,  4) \
     ENTRY(CAN_BPS_TEMPERATURE1   , 0x608,  8) \
     ENTRY(CAN_BPS_TEMPERATURE2   , 0x609,  8) \
     ENTRY(CAN_BPS_TEMPERATURE3   , 0x60A,  8) \
@@ -37,7 +33,7 @@
     ENTRY(CAN_MPPT2              , 0x772,  7) \
     ENTRY(CAN_MPPT3              , 0x773,  7) \
     ENTRY(CAN_MPPT4              , 0x774,  7)
-#define N_CAN_ID 21
+#define N_CAN_ID 18
 
 enum {CAN_ID_TABLE(EXPAND_AS_CAN_ID_ENUM)};
 enum {CAN_ID_TABLE(EXPAND_AS_CAN_LEN_ENUM)};
@@ -62,7 +58,7 @@ enum {CAN_ID_TABLE(EXPAND_AS_CAN_LEN_ENUM)};
     ENTRY(TELEM_MOTOR_HS_TEMP    ,  0x07,  8, g_motor_hs_temp_page)    \
     ENTRY(TELEM_MOTOR_DSP_TEMP   ,  0x09,  8, g_motor_dsp_temp_page)   \
     ENTRY(TELEM_EVDC_DRIVE       ,  0x0A,  8, g_evdc_drive_page)       \
-    ENTRY(TELEM_BPS_VOLTAGE      ,  0x0B, 60, g_bps_voltage_page)      \
+    ENTRY(TELEM_BPS_VOLTAGE      ,  0x0B, 30, g_bps_voltage_page)      \
     ENTRY(TELEM_BPS_TEMPERATURE  ,  0x0D, 24, g_bps_temperature_page)  \
     ENTRY(TELEM_BPS_CUR_BAL_STAT ,  0x11,  8, g_bps_cur_bal_stat_page) \
     ENTRY(TELEM_PMS_DATA         ,  0x19,  8, g_pms_page)              \

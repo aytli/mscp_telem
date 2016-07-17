@@ -229,18 +229,6 @@ void data_received_state(void)
         case CAN_BPS_VOLTAGE4_ID:       // BPS voltage 4
             memcpy(&g_bps_voltage_page[24],g_rx_data,g_rx_len);
             break;
-        case CAN_BPS_VOLTAGE5_ID:       // BPS voltage 5
-            memcpy(&g_bps_voltage_page[32],g_rx_data,g_rx_len);
-            break;
-        case CAN_BPS_VOLTAGE6_ID:       // BPS voltage 6
-            memcpy(&g_bps_voltage_page[40],g_rx_data,g_rx_len);
-            break;
-        case CAN_BPS_VOLTAGE7_ID:       // BPS voltage 7
-            memcpy(&g_bps_voltage_page[48],g_rx_data,g_rx_len);
-            break;
-        case CAN_BPS_VOLTAGE8_ID:       // BPS voltage 8
-            memcpy(&g_bps_voltage_page[56],g_rx_data,g_rx_len);
-            break;
         case CAN_BPS_TEMPERATURE1_ID:   // BPS temperature 1
             memcpy(&g_bps_temperature_page[0],g_rx_data,g_rx_len);
             break;
