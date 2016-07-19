@@ -81,13 +81,14 @@ enum {TELEM_ID_TABLE(EXPAND_AS_TELEM_LEN_ENUM)};
 // X macro table of CAN bus destinations to be polled
 //        Packet name            ,    ID
 #define CAN_POLLING_TABLE(ENTRY)          \
+    ENTRY(POLLING_MOTOR_STATUS   , 0x401) \
     ENTRY(POLLING_MOTOR_HS_TEMP  , 0x40B) \
     ENTRY(POLLING_MOTOR_DSP_TEMP , 0x40C) \
     ENTRY(POLLING_MPPT1          , 0x711) \
     ENTRY(POLLING_MPPT2          , 0x712) \
     ENTRY(POLLING_MPPT3          , 0x713) \
     ENTRY(POLLING_MPPT4          , 0x714)
-#define N_CAN_POLLING_ID 6
+#define N_CAN_POLLING_ID 7
 
 enum {CAN_POLLING_TABLE(EXPAND_AS_POLLING_ID_ENUM)};
 
