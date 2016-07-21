@@ -1,4 +1,0 @@
-XBEE DEBUG CHECKLIST
-
-- if antenna attached and xbee cannot be put into bypass mode, try removing antenna and reset
-- when using xctu to find the xbee, try putting it into bypass mode using serial monitor
