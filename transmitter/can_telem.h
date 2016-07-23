@@ -92,4 +92,21 @@ enum {TELEM_ID_TABLE(EXPAND_AS_TELEM_LEN_ENUM)};
 
 enum {CAN_POLLING_TABLE(EXPAND_AS_POLLING_ID_ENUM)};
 
+
+///////////////////////////
+// MISCELLANEOUS DEFINES //
+///////////////////////////
+
+#define EXPAND_AS_MISC_ID_ENUM(a,b,c)  a##_ID  = c,
+#define EXPAND_AS_MISC_LEN_ENUM(a,b,c) a##_LEN = b,
+
+// X macro table of miscellaneous CANbus packets
+//        Packet name              , LEN,    ID
+#define CAN_MISC_TABLE(ENTRY)                   \
+    ENTRY(TELEM_MOTOR_SPEED_CURRENT,   2, 0x666)
+#define N_CAN_MISC 1
+
+enum {CAN_MISC_TABLE(EXPAND_AS_MISC_ID_ENUM)};
+enum {CAN_MISC_TABLE(EXPAND_AS_MISC_LEN_ENUM)};
+
 #endif

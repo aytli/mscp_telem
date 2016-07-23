@@ -6,12 +6,13 @@
 
 // Includes
 #include "main.h"
+#include "ieeefloat.c"
 #include "can_telem.h"
 #include "can18F4580_mscp.c"
 
 // Timing periods
-#define SENDING_PERIOD_MS 50
-#define POLLING_PERIOD_MS 200
+#define SENDING_PERIOD_MS  50
+#define POLLING_PERIOD_MS  200
 
 // CAN bus defines
 #define TX_PRI 3
@@ -296,6 +297,10 @@ void data_sending_state(void)
 void data_polling_state(void)
 {
     static int i = 0;
+    unsigned int8 motor_speed_current_data[TELEM_MOTOR_SPEED_CURRENT_LEN];
+    int8  bytes;
+    int32 raw_speed;
+    int32 raw_current;
     
     gb_poll = false;
     can_putd(g_polling_id[i],0,8,TX_PRI,TX_EXT,TX_RTR);
@@ -308,6 +313,22 @@ void data_polling_state(void)
     {
         i++;
     }
+    
+    // Driver display uses a PIC24, cannot figure out how to convert floating
+    // point numbers in IEEE 754 format, telemetry will do the conversion and
+    // send it to the driver display over CAN bus
+    for (bytes = 0 ; bytes < 4 ; bytes++)
+    {
+        raw_speed   += (int32) (g_motor_velocity_page[i+4] << (8*i)); // Upper 4 bytes of motor speed packet
+        raw_current += (int32) (g_motor_bus_vi_page[i+4]   << (8*i)); // Upper 4 bytes of motor vi packet
+    }
+    motor_speed_current_data[0] = (unsigned int8) (f_IEEEtoPIC((float)(raw_speed*3.6))); // Motor speed in km/h
+    motor_speed_current_data[1] = (unsigned int8) (f_IEEEtoPIC((float)(raw_current)));   // Motor current
+    
+    can_putd(TELEM_MOTOR_SPEED_CURRENT_ID,
+             &motor_speed_current_data[0],
+             TELEM_MOTOR_SPEED_CURRENT_LEN,
+             3,0,0);
     
     // Polling data sent, return to idle
     g_state = IDLE;
