@@ -6,6 +6,7 @@
 
 // Includes
 #include "main.h"
+#include "math.h"
 #include "ieeefloat.c"
 #include "can_telem.h"
 #include "can18F4580_mscp.c"
@@ -61,6 +62,7 @@ static int1          gb_can1_hit = false;
 static int32         g_rx_id;
 static int8          g_rx_len;
 static int8          g_rx_data[8];
+static unsigned int8 g_motor_speed_current_data[TELEM_MOTOR_SPEED_CURRENT_LEN];
 static telem_state_t g_state;
 
 // Puts the xbee into bypass mode, toggles Xbee reset pins
@@ -86,6 +88,25 @@ void send_data(int8 id, int len, int * data)
     {
         putc(*(data+i));
     }
+}
+
+void update_motor_speed_current_page(void)
+{
+    int8  i;
+    int32 raw_speed   = 0;
+    int32 raw_current = 0;
+    
+    // Driver display uses a PIC24, cannot figure out how to convert floating
+    // point numbers in IEEE 754 format, telemetry will do the conversion and
+    // send it to the driver display over CAN bus
+    for (i = 0 ; i < 4 ; i++)
+    {
+        raw_speed   += (int32) ((int32)(&g_motor_velocity_page[i+4]) << (8*i)); // Upper 4 bytes of motor speed packet
+        raw_current += (int32) ((int32)(&g_motor_bus_vi_page[i+4])   << (8*i)); // Upper 4 bytes of motor vi packet
+    }
+    
+    g_motor_speed_current_data[0] = (unsigned int8)(fabs(f_IEEEtoPIC((float32)raw_speed)));   // Motor speed in rpm
+    g_motor_speed_current_data[1] = (unsigned int8)(fabs(f_IEEEtoPIC((float32)raw_current))); // Motor current
 }
 
 // INT_TIMER2 programmed to trigger every 1ms with a 20MHz clock
@@ -166,6 +187,16 @@ void idle_state(void)
         memcpy(g_rx_data,g_can0_data,8);
         gb_can0_hit = false;
         g_state = DATA_RECEIVED;
+        
+        if ((g_rx_id == CAN_MOTOR_BUS_VI_ID) || (g_rx_id == CAN_MOTOR_VELOCITY_ID))
+        {
+            update_motor_speed_current_page();
+            can_putd(TELEM_MOTOR_SPEED_CURRENT_ID,
+                     &g_motor_speed_current_data[0],
+                     TELEM_MOTOR_SPEED_CURRENT_LEN,
+                     3,0,0);
+            output_toggle(PIN_C0);
+        }
     }
     else if (gb_can1_hit == true)
     {
@@ -175,6 +206,16 @@ void idle_state(void)
         memcpy(g_rx_data,g_can1_data,8);
         gb_can1_hit = false;
         g_state = DATA_RECEIVED;
+        
+        if ((g_rx_id == CAN_MOTOR_BUS_VI_ID) || (g_rx_id == CAN_MOTOR_VELOCITY_ID))
+        {
+            update_motor_speed_current_page();
+            can_putd(TELEM_MOTOR_SPEED_CURRENT_ID,
+                     &g_motor_speed_current_data[0],
+                     TELEM_MOTOR_SPEED_CURRENT_LEN,
+                     3,0,0);
+            output_toggle(PIN_C0);
+        }
     }
     else if (gb_send == true)
     {
@@ -297,10 +338,6 @@ void data_sending_state(void)
 void data_polling_state(void)
 {
     static int i = 0;
-    unsigned int8 motor_speed_current_data[TELEM_MOTOR_SPEED_CURRENT_LEN];
-    int8  bytes;
-    int32 raw_speed;
-    int32 raw_current;
     
     gb_poll = false;
     can_putd(g_polling_id[i],0,8,TX_PRI,TX_EXT,TX_RTR);
@@ -313,22 +350,6 @@ void data_polling_state(void)
     {
         i++;
     }
-    
-    // Driver display uses a PIC24, cannot figure out how to convert floating
-    // point numbers in IEEE 754 format, telemetry will do the conversion and
-    // send it to the driver display over CAN bus
-    for (bytes = 0 ; bytes < 4 ; bytes++)
-    {
-        raw_speed   += (int32) (g_motor_velocity_page[i+4] << (8*i)); // Upper 4 bytes of motor speed packet
-        raw_current += (int32) (g_motor_bus_vi_page[i+4]   << (8*i)); // Upper 4 bytes of motor vi packet
-    }
-    motor_speed_current_data[0] = (unsigned int8) (f_IEEEtoPIC((float)(raw_speed*3.6))); // Motor speed in km/h
-    motor_speed_current_data[1] = (unsigned int8) (f_IEEEtoPIC((float)(raw_current)));   // Motor current
-    
-    can_putd(TELEM_MOTOR_SPEED_CURRENT_ID,
-             &motor_speed_current_data[0],
-             TELEM_MOTOR_SPEED_CURRENT_LEN,
-             3,0,0);
     
     // Polling data sent, return to idle
     g_state = IDLE;
