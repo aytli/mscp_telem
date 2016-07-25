@@ -62,7 +62,6 @@ static int1          gb_can1_hit = false;
 static int32         g_rx_id;
 static int8          g_rx_len;
 static int8          g_rx_data[8];
-static unsigned int8 g_motor_speed_current_data[TELEM_MOTOR_SPEED_CURRENT_LEN];
 static telem_state_t g_state;
 
 // Puts the xbee into bypass mode, toggles Xbee reset pins
@@ -90,23 +89,30 @@ void send_data(int8 id, int len, int * data)
     }
 }
 
-void update_motor_speed_current_page(void)
+void send_motor_speed_current_page(void)
 {
     int8  i;
     int32 raw_speed   = 0;
     int32 raw_current = 0;
+    unsigned int8 motor_speed_current_data[TELEM_MOTOR_SPEED_CURRENT_LEN];
     
     // Driver display uses a PIC24, cannot figure out how to convert floating
     // point numbers in IEEE 754 format, telemetry will do the conversion and
     // send it to the driver display over CAN bus
     for (i = 0 ; i < 4 ; i++)
     {
-        raw_speed   += (int32) ((int32)(&g_motor_velocity_page[i+4]) << (8*i)); // Upper 4 bytes of motor speed packet
-        raw_current += (int32) ((int32)(&g_motor_bus_vi_page[i+4])   << (8*i)); // Upper 4 bytes of motor vi packet
+        raw_speed   += (int32) ((int32)(g_motor_velocity_page[i+4]) << (8*i)); // Upper 4 bytes of motor speed packet
+        raw_current += (int32) ((int32)(g_motor_bus_vi_page[i+4])   << (8*i)); // Upper 4 bytes of motor vi packet
     }
     
-    g_motor_speed_current_data[0] = (unsigned int8)(fabs(f_IEEEtoPIC((float32)raw_speed)));   // Motor speed in rpm
-    g_motor_speed_current_data[1] = (unsigned int8)(fabs(f_IEEEtoPIC((float32)raw_current))); // Motor current
+    motor_speed_current_data[0] = (unsigned int8)(fabs(f_IEEEtoPIC((float32)raw_speed)));   // Motor speed in rpm
+    motor_speed_current_data[1] = (unsigned int8)(fabs(f_IEEEtoPIC((float32)raw_current))); // Motor current
+    delay_ms(1); // WHY DO WE NEED THIS???
+    
+    can_putd(TELEM_MOTOR_SPEED_CURRENT_ID,
+             motor_speed_current_data,
+             TELEM_MOTOR_SPEED_CURRENT_LEN,
+             3,0,0);
 }
 
 // INT_TIMER2 programmed to trigger every 1ms with a 20MHz clock
@@ -187,16 +193,6 @@ void idle_state(void)
         memcpy(g_rx_data,g_can0_data,8);
         gb_can0_hit = false;
         g_state = DATA_RECEIVED;
-        
-        if ((g_rx_id == CAN_MOTOR_BUS_VI_ID) || (g_rx_id == CAN_MOTOR_VELOCITY_ID))
-        {
-            update_motor_speed_current_page();
-            can_putd(TELEM_MOTOR_SPEED_CURRENT_ID,
-                     &g_motor_speed_current_data[0],
-                     TELEM_MOTOR_SPEED_CURRENT_LEN,
-                     3,0,0);
-            output_toggle(PIN_C0);
-        }
     }
     else if (gb_can1_hit == true)
     {
@@ -206,16 +202,6 @@ void idle_state(void)
         memcpy(g_rx_data,g_can1_data,8);
         gb_can1_hit = false;
         g_state = DATA_RECEIVED;
-        
-        if ((g_rx_id == CAN_MOTOR_BUS_VI_ID) || (g_rx_id == CAN_MOTOR_VELOCITY_ID))
-        {
-            update_motor_speed_current_page();
-            can_putd(TELEM_MOTOR_SPEED_CURRENT_ID,
-                     &g_motor_speed_current_data[0],
-                     TELEM_MOTOR_SPEED_CURRENT_LEN,
-                     3,0,0);
-            output_toggle(PIN_C0);
-        }
     }
     else if (gb_send == true)
     {
@@ -245,9 +231,11 @@ void data_received_state(void)
             break;
         case CAN_MOTOR_BUS_VI_ID:       // Motor voltage and current
             memcpy(&g_motor_bus_vi_page[0],g_rx_data,g_rx_len);
+            send_motor_speed_current_page();
             break;
         case CAN_MOTOR_VELOCITY_ID:     // Motor velocity
             memcpy(&g_motor_velocity_page[0],g_rx_data,g_rx_len);
+            send_motor_speed_current_page();
             break;
         case CAN_MOTOR_HS_TEMP_ID:  // Motor heatsink temperature
             memcpy(&g_motor_hs_temp_page[0],g_rx_data,g_rx_len);
